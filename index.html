@@ -220,7 +220,30 @@ let fbSonYazma = 0; // son bizim yazdığımız zaman (ms)
 
 // ── DATA ──────────────────────────────────────────────
 const ANAHTAR = 'levha_panel_v1';
-let D = JSON.parse(localStorage.getItem(ANAHTAR) || 'null') || varsayilanVeri();
+
+// Beklenen tüm liste alanları
+const LISTE_ALANLARI = ['urunler','boyutlar','kalinliklar','hammaddeler','makineler',
+  'stok','satislar','uretimKayitlari','hammaddeStok','musteriler','kasaHareketleri'];
+
+// ÖNEMLİ: Firebase Realtime DB boş dizileri SAKLAMAZ ve bazen diziyi
+// {0:...,1:...} nesnesi olarak döndürür. Bu yüzden gelen veri her zaman
+// normalize edilmeli — yoksa sayfalar boş açılır / çöker.
+function veriNormalize(v){
+  if(!v || typeof v!=='object') v = {};
+  const vars = varsayilanVeri();
+  if(typeof v.pin!=='string' || !v.pin) v.pin = vars.pin;
+  if(typeof v.firma!=='string' || !v.firma) v.firma = vars.firma;
+  LISTE_ALANLARI.forEach(alan=>{
+    let x = v[alan];
+    if(Array.isArray(x)) { v[alan] = x.filter(i=>i!=null); return; }
+    // Firebase nesne olarak döndürdüyse diziye çevir
+    if(x && typeof x==='object') { v[alan] = Object.values(x).filter(i=>i!=null); return; }
+    v[alan] = [];
+  });
+  return v;
+}
+
+let D = veriNormalize(JSON.parse(localStorage.getItem(ANAHTAR) || 'null') || varsayilanVeri());
 
 function varsayilanVeri(){
   return {
@@ -285,7 +308,7 @@ async function fbYukle(){
     if(res.ok){
       const veri = await res.json();
       if(veri && typeof veri === 'object' && veri.pin){
-        D = veri;
+        D = veriNormalize(veri);
         localStorage.setItem(ANAHTAR, JSON.stringify(D));
         return true;
       }
@@ -317,13 +340,13 @@ function fbDinle(){
                 const payload = JSON.parse(satir.slice(6));
                 // Bizim az önce yazdığımız veriyi yoksay (2 sn içindeyse)
                 if(payload && payload.data && payload.data.pin && Date.now()-fbSonYazma > 2000){
-                  D = payload.data;
+                  D = veriNormalize(payload.data);
                   localStorage.setItem(ANAHTAR, JSON.stringify(D));
                   hdrGuncelle();
                   renderTab(aktifTab);
                   toast('🔄 Güncellendi','var(--teal)');
                 }
-              }catch(e){}
+              }catch(e){ console.warn('SSE ayrıştırma hatası:', e); }
             }
           }
           oku();
@@ -398,11 +421,13 @@ function kilidKapat(){
 
 // ── HEADER ───────────────────────────────────────────
 function kasaGuncelle(){
-  const kasa = D.kasaHareketleri.reduce((s,h)=>s+(h.tur==='gelir'?h.tutar:-h.tutar),0);
-  document.getElementById('hdr-kasa').textContent=para(kasa);
+  const kasa = (D.kasaHareketleri||[]).reduce((s,h)=>s+(h.tur==='gelir'?(h.tutar||0):-(h.tutar||0)),0);
+  const el=document.getElementById('hdr-kasa');
+  if(el) el.textContent=para(kasa);
 }
 function hdrGuncelle(){
-  document.getElementById('hdr-firma').textContent=D.firma;
+  const el=document.getElementById('hdr-firma');
+  if(el) el.textContent=D.firma||'';
   kasaGuncelle();
 }
 
@@ -417,15 +442,28 @@ function tabGec(tab, el){
 function renderTab(tab){
   const m=document.getElementById('main-icerik');
   m.innerHTML='';
-  if(tab==='ozet') renderOzet(m);
-  else if(tab==='stok') renderStok(m);
-  else if(tab==='satis') renderSatis(m);
-  else if(tab==='uretim') renderUretim(m);
-  else if(tab==='hammadde') renderHammadde(m);
-  else if(tab==='musteriler') renderMusteriler(m);
-  else if(tab==='kasa') renderKasa(m);
-  else if(tab==='raporlar') renderRaporlar(m);
-  else if(tab==='ayarlar') renderAyarlar(m);
+  D = veriNormalize(D); // her çizimde eksik alan kalmasın
+  try {
+    if(tab==='ozet') renderOzet(m);
+    else if(tab==='stok') renderStok(m);
+    else if(tab==='satis') renderSatis(m);
+    else if(tab==='uretim') renderUretim(m);
+    else if(tab==='hammadde') renderHammadde(m);
+    else if(tab==='musteriler') renderMusteriler(m);
+    else if(tab==='kasa') renderKasa(m);
+    else if(tab==='raporlar') renderRaporlar(m);
+    else if(tab==='ayarlar') renderAyarlar(m);
+  } catch(e) {
+    console.error('Sayfa çizim hatası:', e);
+    m.innerHTML=`<div class="card">
+      <div class="mtitle" style="color:var(--red)">⚠️ Sayfa yüklenemedi</div>
+      <div style="font-size:13px;color:var(--mut);margin-bottom:12px">Hata: ${esc(e.message)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm" onclick="location.reload()">Sayfayı Yenile</button>
+        <button class="btn sm" onclick="veriAktar()">Veriyi Yedekle</button>
+      </div>
+    </div>`;
+  }
 }
 
 // ── YARDIMCI ─────────────────────────────────────────
@@ -1642,7 +1680,7 @@ function veriIcAl(){
   const input=document.createElement('input'); input.type='file'; input.accept='.json';
   input.onchange=e=>{
     const r=new FileReader();
-    r.onload=ev=>{ try{ D=JSON.parse(ev.target.result); kaydet(); renderTab('ozet'); toast('Veri içe aktarıldı ✓'); }catch{ toast('Geçersiz dosya!','var(--red)'); }};
+    r.onload=ev=>{ try{ D=veriNormalize(JSON.parse(ev.target.result)); kaydet(); hdrGuncelle(); renderTab('ozet'); toast('Veri içe aktarıldı ✓'); }catch{ toast('Geçersiz dosya!','var(--red)'); }};
     r.readAsText(e.target.files[0]);
   };
   input.click();
