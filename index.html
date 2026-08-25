@@ -224,7 +224,7 @@ let D = JSON.parse(localStorage.getItem(ANAHTAR) || 'null') || varsayilanVeri();
 
 function varsayilanVeri(){
   return {
-    pin:'1234',
+    pin:'4758',
     firma:'Plastik Levha Üretim & Satış',
     urunler:[
       {id:'u1',ad:'Plastik Levha',renk:'Siyah'},
@@ -447,12 +447,17 @@ function stokBul(urunId,boyutId,kalinlikId,hammaddeId){
   return D.stok.find(s=>s.urunId===urunId&&s.boyutId===boyutId&&s.kalinlikId===kalinlikId&&s.hammaddeId===hammaddeId);
 }
 
+// Stok günceller ve GERÇEKTEN uygulanan farkı döndürür (iade/geri alma için)
 function stokGuncelle(urunId,boyutId,kalinlikId,hammaddeId,fark,maliyet){
   let s=stokBul(urunId,boyutId,kalinlikId,hammaddeId);
-  if(s){ s.adet=Math.max(0,s.adet+fark); if(maliyet) s.maliyet=maliyet; }
-  else if(fark>0){
-    D.stok.push({id:uid(),urunId,boyutId,kalinlikId,hammaddeId,adet:fark,maliyet:maliyet||0});
+  if(!s){
+    s={id:uid(),urunId,boyutId,kalinlikId,hammaddeId,adet:0,maliyet:maliyet||0};
+    D.stok.push(s);
   }
+  const eski=s.adet;
+  s.adet=Math.max(0,s.adet+fark);
+  if(maliyet) s.maliyet=maliyet;
+  return s.adet-eski; // uygulanan gerçek fark
 }
 
 // ── SELECTS ──────────────────────────────────────────
@@ -486,11 +491,14 @@ function makineSelectHTML(nm,sel){
     ${D.makineler.map(m=>`<option value="${m.id}"${m.id===sel?' selected':''}>${m.ad}</option>`).join('')}
   </select>`;
 }
+// HTML kaçış — isimlerde " ' < > olursa form bozulmasın
+function esc(v){ return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 function musteriSelectHTML(nm,sel){
-  return `<select name="${nm}">
-    <option value="">— Müşteri —</option>
-    ${D.musteriler.map(m=>`<option value="${m.id}"${m.id===sel?' selected':''}>${m.ad}</option>`).join('')}
-  </select>`;
+  const listId='musteri-list-'+Math.random().toString(36).slice(2);
+  const seciliAd=sel?(D.musteriler.find(x=>x.id===sel)?.ad||sel):'';
+  return `<input type="text" name="${nm}" id="${nm}-inp" list="${listId}" placeholder="Müşteri adı (isteğe bağlı)" value="${esc(seciliAd)}" autocomplete="off">
+  <datalist id="${listId}">${D.musteriler.map(m=>`<option value="${esc(m.ad)}">`).join('')}</datalist>`;
 }
 
 // ── TOAST ────────────────────────────────────────────
@@ -573,7 +581,7 @@ function renderOzet(m){
       <div class="mtitle">Son Satışlar</div>
       ${D.satislar.slice(-5).reverse().map(s=>`
         <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #262837;font-size:13px;">
-          <span>${musteriAd(s.musteriId)||s.musteriAd||'—'}<br><span style="font-size:11px;color:var(--mut)">${tarihStr(s.tarih)}</span></span>
+          <span>${s.musteriAd||musteriAd(s.musteriId)}<br><span style="font-size:11px;color:var(--mut)">${tarihStr(s.tarih)}</span></span>
           <span class="yesil">${para(s.toplam)}</span>
         </div>`).join('') || '<div class="empty">Henüz satış yok</div>'}
     </div>
@@ -618,10 +626,24 @@ function stokListeRender(){
         <div class="stok-badge ${cls}">${s.adet} levha</div>
         ${m2toplam?`<div style="font-size:11px;color:var(--teal);margin-top:3px">${m2Str(m2toplam)}</div>`:''}
       </div>
-      <button class="btn sm" onclick="stokDuzeltModal('${s.id}')">Düzelt</button>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+        <button class="btn sm danger" style="padding:4px 10px;font-size:16px;line-height:1" onclick="stokHizli('${s.id}',-1)">−</button>
+        <button class="btn sm success" style="padding:4px 10px;font-size:16px;line-height:1" onclick="stokHizli('${s.id}',1)">+</button>
+        <button class="btn sm" onclick="stokDuzeltModal('${s.id}')">✏️ Düzelt</button>
+      </div>
     </div>`;
   });
   c.innerHTML=satir.join('');
+}
+
+function stokHizli(sid,delta){
+  const miktar=parseInt(prompt(delta>0?'Kaç levha eklenecek?':'Kaç levha çıkarılacak?','1')||'0');
+  if(!miktar||isNaN(miktar)||miktar<=0) return;
+  const s=D.stok.find(x=>x.id===sid);
+  if(!s) return;
+  s.adet=Math.max(0,s.adet+(delta>0?miktar:-miktar));
+  kaydet(); stokListeRender();
+  toast(`Stok güncellendi: ${s.adet} levha ✓`);
 }
 
 function stokDuzeltModal(sid){
@@ -699,7 +721,7 @@ function satisListeRender(){
 
 let satisKalemler=[];
 function satisModal(){
-  satisKalemler=[{id:uid(),urunId:'',boyutId:'',kalinlikId:'',hammaddeId:'',adet:1,birimFiyat:0}];
+  satisKalemler=[{id:uid(),urunId:'',boyutId:'',kalinlikId:'',hammaddeId:'',birim:'adet',fiyatBirim:'adet',miktar:0,birimFiyat:0}];
   satisModalRender();
 }
 
@@ -724,28 +746,51 @@ function satisModalRender(){
 }
 
 function kalemSatirHTML(k,i){
+  const stokVar = k.urunId ? (stokBul(k.urunId,k.boyutId,k.kalinlikId,k.hammaddeId)?.adet ?? null) : null;
   return `<div class="kalem-satir" id="kalem-${k.id}" style="flex-wrap:wrap;gap:6px;align-items:flex-end;">
     <div style="display:flex;gap:6px;flex:1;flex-wrap:wrap;min-width:0">
-      ${urunSelectHTML(`urun_${i}`,'','')}
-      ${boyutSelectHTML(`boyut_${i}`,'')}
-      ${kalinlikSelectHTML(`kalinlik_${i}`,'')}
-      ${hammaddeSelectHTML(`hammadde_${i}`,'')}
+      ${urunSelectHTML(`urun_${i}`,k.urunId,'')}
+      ${boyutSelectHTML(`boyut_${i}`,k.boyutId)}
+      ${kalinlikSelectHTML(`kalinlik_${i}`,k.kalinlikId)}
+      ${hammaddeSelectHTML(`hammadde_${i}`,k.hammaddeId)}
     </div>
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <select id="kbirim_${i}" onchange="kalemBirimDegis(${i})" style="width:80px;flex:none;padding:7px 6px;font-size:13px;">
-        <option value="adet">Adet</option>
-        <option value="m2">m²</option>
+        <option value="adet"${k.birim!=='m2'?' selected':''}>Adet</option>
+        <option value="m2"${k.birim==='m2'?' selected':''}>m²</option>
       </select>
-      <input type="number" placeholder="Miktar" min="0.01" step="0.01" value="${k.miktar||k.adet||''}" id="kmiktar_${i}" onchange="kalemHesapla(${i})" style="width:80px;flex:none;">
+      <input type="number" placeholder="${k.birim==='m2'?'m²':'Adet'}" min="0.01" step="0.01" value="${k.miktar||''}" id="kmiktar_${i}" onchange="kalemHesapla(${i})" style="width:80px;flex:none;">
       <span id="kadet-goster_${i}" style="font-size:11px;color:var(--teal);white-space:nowrap;min-width:60px"></span>
       <input type="number" placeholder="₺/birim" min="0" step="0.01" value="${k.birimFiyat||''}" id="kfiyat_${i}" style="width:90px;flex:none;">
       <select id="kfiyatbirim_${i}" style="width:70px;flex:none;padding:7px 6px;font-size:13px;">
-        <option value="adet">/ adet</option>
-        <option value="m2">/ m²</option>
+        <option value="adet"${k.fiyatBirim!=='m2'?' selected':''}>/ adet</option>
+        <option value="m2"${k.fiyatBirim==='m2'?' selected':''}>/ m²</option>
       </select>
     </div>
+    <span id="kstok_${i}" style="font-size:11px;white-space:nowrap;color:${stokVar===null?'var(--mut)':stokVar>0?'var(--green)':'var(--red)'}">${k.urunId?(stokVar===null?'stok kaydı yok':`stok: ${stokVar}`):''}</span>
     <button class="sil-x" onclick="kalemSil(${i})">×</button>
   </div>`;
+}
+
+// Ekrandaki değerleri diziye yaz (satır eklenirken/silinirken kaybolmasın)
+function kalemleriOku(){
+  const modal=document.getElementById('modal-icerik');
+  if(!modal) return;
+  satisKalemler.forEach((k,i)=>{
+    k.urunId=modal.querySelector(`[name="urun_${i}"]`)?.value||'';
+    k.boyutId=modal.querySelector(`[name="boyut_${i}"]`)?.value||'';
+    k.kalinlikId=modal.querySelector(`[name="kalinlik_${i}"]`)?.value||'';
+    k.hammaddeId=modal.querySelector(`[name="hammadde_${i}"]`)?.value||'';
+    k.birim=document.getElementById(`kbirim_${i}`)?.value||'adet';
+    k.fiyatBirim=document.getElementById(`kfiyatbirim_${i}`)?.value||'adet';
+    k.miktar=parseFloat(document.getElementById(`kmiktar_${i}`)?.value)||0;
+    k.birimFiyat=parseFloat(document.getElementById(`kfiyat_${i}`)?.value)||0;
+  });
+}
+
+function kalemleriCiz(){
+  document.getElementById('kalem-listesi').innerHTML=satisKalemler.map((k,i)=>kalemSatirHTML(k,i)).join('');
+  satisKalemler.forEach((k,i)=>kalemHesapla(i));
 }
 
 function kalemBirimDegis(i){
@@ -760,34 +805,68 @@ function kalemHesapla(i){
   const birim=document.getElementById(`kbirim_${i}`)?.value||'adet';
   const miktar=parseFloat(document.getElementById(`kmiktar_${i}`)?.value)||0;
   const modal=document.getElementById('modal-icerik');
+  const urunId=modal?.querySelector(`[name="urun_${i}"]`)?.value||'';
   const boyutId=modal?.querySelector(`[name="boyut_${i}"]`)?.value||'';
+  const kalinlikId=modal?.querySelector(`[name="kalinlik_${i}"]`)?.value||'';
+  const hammaddeId=modal?.querySelector(`[name="hammadde_${i}"]`)?.value||'';
   const gs=document.getElementById(`kadet-goster_${i}`);
-  if(!gs) return;
-  if(birim==='m2'&&boyutId&&miktar){
-    const adet=m2denAdet(miktar,boyutId);
-    const bm2=boyutM2(boyutId);
-    gs.textContent=`= ${adet} levha (${m2Str(bm2)}/levha)`;
-  } else {
-    const adet=Math.round(miktar);
-    if(boyutId&&adet) gs.textContent=`= ${m2Str(adettenM2(adet,boyutId))}`;
-    else gs.textContent='';
+  let istenenAdet=0;
+  if(gs){
+    if(birim==='m2'&&boyutId&&miktar){
+      istenenAdet=m2denAdet(miktar,boyutId);
+      gs.textContent=`= ${istenenAdet} levha (${m2Str(boyutM2(boyutId))}/levha)`;
+    } else {
+      istenenAdet=Math.round(miktar);
+      if(boyutId&&istenenAdet) gs.textContent=`= ${m2Str(adettenM2(istenenAdet,boyutId))}`;
+      else gs.textContent='';
+    }
+  }
+  // Canlı stok göstergesi
+  const st=document.getElementById(`kstok_${i}`);
+  if(st){
+    if(!urunId){ st.textContent=''; return; }
+    const s=stokBul(urunId,boyutId,kalinlikId,hammaddeId);
+    if(!s){ st.textContent='stok kaydı yok'; st.style.color='var(--mut)'; }
+    else if(istenenAdet>s.adet){ st.textContent=`⚠ stok: ${s.adet} (yetersiz!)`; st.style.color='var(--red)'; }
+    else { st.textContent=`stok: ${s.adet}`; st.style.color='var(--green)'; }
   }
 }
 
+// Kalem satırındaki select'ler değişince stok/m² göstergesini tazele
+document.addEventListener('change', e=>{
+  const nm=e.target?.getAttribute?.('name')||'';
+  const m=nm.match(/^(?:urun|boyut|kalinlik|hammadde)_(\d+)$/);
+  if(m) kalemHesapla(+m[1]);
+});
+
 function kalemEkle(){
-  satisKalemler.push({id:uid(),urunId:'',boyutId:'',kalinlikId:'',hammaddeId:'',adet:1,birimFiyat:0});
-  document.getElementById('kalem-listesi').innerHTML=satisKalemler.map((k,i)=>kalemSatirHTML(k,i)).join('');
+  kalemleriOku();
+  satisKalemler.push({id:uid(),urunId:'',boyutId:'',kalinlikId:'',hammaddeId:'',birim:'adet',fiyatBirim:'adet',miktar:0,birimFiyat:0});
+  kalemleriCiz();
 }
 
 function kalemSil(i){
+  kalemleriOku();
+  if(satisKalemler.length<=1){ toast('En az bir kalem olmalı','var(--amber)'); return; }
   satisKalemler.splice(i,1);
-  document.getElementById('kalem-listesi').innerHTML=satisKalemler.map((k,i)=>kalemSatirHTML(k,i)).join('');
+  kalemleriCiz();
 }
 
 function satisKaydet(){
   const modal=document.getElementById('modal-icerik');
   const tarih=document.getElementById('s-tarih').value||bugun();
-  const musteriId=modal.querySelector('[name="musteriId"]')?.value||'';
+  const musteriAdiGiris=(document.getElementById('musteriId-inp')?.value||'').trim();
+  // Var olan müşteriyle eşleştir; yoksa yeni müşteri oluştur ve ID'sini kullan
+  let musteriId='';
+  if(musteriAdiGiris){
+    const eslesen=D.musteriler.find(x=>x.ad.toLowerCase()===musteriAdiGiris.toLowerCase());
+    if(eslesen) musteriId=eslesen.id;
+    else {
+      musteriId=uid();
+      D.musteriler.push({id:musteriId,ad:musteriAdiGiris,telefon:'',sehir:'',adres:'',bakiye:0});
+    }
+  }
+  const musteriAdKayit=musteriAdiGiris||'Perakende';
   const tahsilat=parseFloat(document.getElementById('s-tahsilat').value)||0;
   const not=document.getElementById('s-not').value;
   const kalemler=[];
@@ -802,6 +881,7 @@ function satisKaydet(){
     const miktar=parseFloat(document.getElementById(`kmiktar_${i}`)?.value)||0;
     const birimFiyat=parseFloat(document.getElementById(`kfiyat_${i}`)?.value)||0;
     if(!urunId||!miktar) continue;
+    if(!boyutId){ toast(`${i+1}. kalemde boyut seçilmedi!`,'var(--red)'); return; }
     // m² veya adet çevir
     let adet, satisM2;
     if(birim==='m2'){
@@ -811,17 +891,24 @@ function satisKaydet(){
       adet=Math.round(miktar);
       satisM2=adettenM2(adet,boyutId);
     }
+    // Stok yeterlilik kontrolü
+    const stokKaydi=stokBul(urunId,boyutId,kalinlikId,hammaddeId);
+    const mevcut=stokKaydi?stokKaydi.adet:0;
+    if(adet>mevcut){
+      const ad=`${urunAd(urunId)} ${boyutAd(boyutId)} ${kalinlikAd(kalinlikId)}`;
+      if(!confirm(`⚠ STOK YETERSİZ\n\n${ad}\nİstenen: ${adet} levha\nMevcut: ${mevcut} levha\n\nYine de satışı kaydetmek istiyor musunuz?\n(Stok eksiye düşmez, 0 olur)`)) return;
+    }
     // Fiyat hesabı
     let kalemToplam;
     if(fiyatBirim==='m2') kalemToplam=satisM2*birimFiyat;
     else kalemToplam=adet*birimFiyat;
-    // Stok düş
-    stokGuncelle(urunId,boyutId,kalinlikId,hammaddeId,-adet);
-    kalemler.push({urunId,boyutId,kalinlikId,hammaddeId,adet,satisM2,birimFiyat,fiyatBirim,birim});
+    // Stok düş — gerçekten düşen miktarı sakla (silinince doğru iade için)
+    const dusen=stokGuncelle(urunId,boyutId,kalinlikId,hammaddeId,-adet);
+    kalemler.push({urunId,boyutId,kalinlikId,hammaddeId,adet,dusulen:-dusen,satisM2,birimFiyat,fiyatBirim,birim});
     toplam+=kalemToplam;
   }
   if(!kalemler.length){ toast('En az bir kalem girin!','var(--red)'); return; }
-  const musteriAd2=musteriId?musteriAd(musteriId):'Perakende';
+  const musteriAd2=musteriAdKayit;
   D.satislar.push({id:uid(),tarih,musteriId,musteriAd:musteriAd2,kalemler,toplam,tahsilat,not});
   // Kasa hareketi
   if(tahsilat>0) D.kasaHareketleri.push({id:uid(),tarih,tur:'gelir',aciklama:`Satış: ${musteriAd2}`,tutar:tahsilat,kategori:'Satış'});
@@ -834,14 +921,29 @@ function satisKaydet(){
 }
 
 function satisSil(id){
-  if(!confirm('Bu satışı silmek istediğinize emin misiniz?')) return;
+  if(!confirm('Bu satışı silmek istediğinize emin misiniz?\n\nStok, kasa ve müşteri bakiyesi geri alınacak.')) return;
   const s=D.satislar.find(x=>x.id===id);
   if(s){
-    // Stok geri yükle
-    (s.kalemler||[]).forEach(k=>stokGuncelle(k.urunId,k.boyutId,k.kalinlikId,k.hammaddeId,k.adet));
+    // Stok geri yükle (sadece gerçekten düşen kadar)
+    (s.kalemler||[]).forEach(k=>{
+      const geri = k.dusulen!==undefined ? k.dusulen : k.adet;
+      if(geri>0) stokGuncelle(k.urunId,k.boyutId,k.kalinlikId,k.hammaddeId,geri);
+    });
+    // Kasa hareketini geri al
+    if(s.tahsilat>0){
+      D.kasaHareketleri=D.kasaHareketleri.filter(h=>
+        !(h.tarih===s.tarih && h.tur==='gelir' && h.tutar===s.tahsilat && h.kategori==='Satış'
+          && h.aciklama===`Satış: ${s.musteriAd||musteriAd(s.musteriId)}`)
+      );
+    }
+    // Müşteri bakiyesini geri al
+    if(s.musteriId){
+      const mu=D.musteriler.find(x=>x.id===s.musteriId);
+      if(mu) mu.bakiye=(mu.bakiye||0)-(s.toplam-s.tahsilat);
+    }
     D.satislar=D.satislar.filter(x=>x.id!==id);
   }
-  kaydet(); satisListeRender(); toast('Satış silindi','var(--amber)');
+  kaydet(); satisListeRender(); toast('Satış silindi ve geri alındı','var(--amber)');
 }
 
 // ══════════════════════════════════════════════════════
@@ -963,23 +1065,43 @@ function uretimKaydet(){
     sure:parseInt(document.getElementById(`dsure_${i}`)?.value)||0,
     neden:document.getElementById(`dneden_${i}`)?.value||''
   })).filter(d=>d.sure>0);
+  if(!boyutId){ toast('Boyut seçilmedi!','var(--red)'); return; }
+  // Hammadde yeterlilik kontrolü
+  if(hammaddeId&&hammaddeMiktar>0){
+    const hs=D.hammaddeStok.find(x=>x.hammaddeId===hammaddeId);
+    const mevcut=hs?hs.miktar:0;
+    if(hammaddeMiktar>mevcut){
+      const h=D.hammaddeler.find(x=>x.id===hammaddeId);
+      if(!confirm(`⚠ HAMMADDE YETERSİZ\n\n${hammaddeAd(hammaddeId)}\nGerekli: ${hammaddeMiktar} ${h?.birim||''}\nMevcut: ${mevcut} ${h?.birim||''}\n\nYine de üretimi kaydetmek istiyor musunuz?`)) return;
+    }
+  }
   // Stok artır
   stokGuncelle(urunId,boyutId,kalinlikId,hammaddeId,adet);
   // Hammadde stok düş
   if(hammaddeId&&hammaddeMiktar>0){
     let hs=D.hammaddeStok.find(x=>x.hammaddeId===hammaddeId);
     if(hs) hs.miktar=Math.max(0,hs.miktar-hammaddeMiktar);
+    else D.hammaddeStok.push({id:uid(),hammaddeId,miktar:0,birimFiyat:0});
   }
   D.uretimKayitlari.push({id:uid(),tarih,makinaId,urunId,boyutId,kalinlikId,hammaddeId,adet,hammaddeMiktar,operatör,vardiya,duruslar,not});
   kaydet(); modalKapatDirekt(); renderTab('uretim'); toast(`${adet} levha üretim kaydedildi ✓`);
 }
 
 function uretimSil(id){
-  if(!confirm('Bu üretim kaydını silmek istediğinize emin misiniz?')) return;
+  if(!confirm('Bu üretim kaydını silmek istediğinize emin misiniz?\n\nÜrün stoğu düşecek, harcanan hammadde geri gelecek.')) return;
   const u=D.uretimKayitlari.find(x=>x.id===id);
-  if(u) stokGuncelle(u.urunId,u.boyutId,u.kalinlikId,u.hammaddeId,-u.adet);
+  if(u){
+    // Üretilen levhaları stoktan düş
+    stokGuncelle(u.urunId,u.boyutId,u.kalinlikId,u.hammaddeId,-u.adet);
+    // Harcanan hammaddeyi geri ekle
+    if(u.hammaddeId && u.hammaddeMiktar>0){
+      let hs=D.hammaddeStok.find(x=>x.hammaddeId===u.hammaddeId);
+      if(hs) hs.miktar=(hs.miktar||0)+u.hammaddeMiktar;
+      else D.hammaddeStok.push({id:uid(),hammaddeId:u.hammaddeId,miktar:u.hammaddeMiktar,birimFiyat:0});
+    }
+  }
   D.uretimKayitlari=D.uretimKayitlari.filter(x=>x.id!==id);
-  kaydet(); uretimListeRender(); toast('Üretim kaydı silindi','var(--amber)');
+  kaydet(); uretimListeRender(); toast('Üretim kaydı silindi ve geri alındı','var(--amber)');
 }
 
 // ══════════════════════════════════════════════════════
@@ -1077,10 +1199,10 @@ function musteriModal(mid){
   const mu=mid?D.musteriler.find(x=>x.id===mid):null;
   modalAc(`<div class="modal-title">${mu?'Müşteri Düzenle':'Yeni Müşteri'}</div>
   <div class="formgrid">
-    <div><div class="lbl">Ad / Firma</div><input type="text" id="mu-ad" value="${mu?.ad||''}"></div>
+    <div><div class="lbl">Ad / Firma</div><input type="text" id="mu-ad" value="${esc(mu?.ad||'')}"></div>
     <div class="row2">
-      <div><div class="lbl">Telefon</div><input type="tel" id="mu-tel" value="${mu?.telefon||''}"></div>
-      <div><div class="lbl">Şehir</div><input type="text" id="mu-sehir" value="${mu?.sehir||''}"></div>
+      <div><div class="lbl">Telefon</div><input type="tel" id="mu-tel" value="${esc(mu?.telefon||'')}"></div>
+      <div><div class="lbl">Şehir</div><input type="text" id="mu-sehir" value="${esc(mu?.sehir||'')}"></div>
     </div>
     <div><div class="lbl">Adres</div><textarea id="mu-adres" rows="2">${mu?.adres||''}</textarea></div>
     <button class="btn success" onclick="musteriKaydet('${mid||''}')">Kaydet</button>
@@ -1287,7 +1409,7 @@ function renderAyarlar(m){
   <div class="card">
     <div class="mtitle">🏢 Firma Bilgileri</div>
     <div class="formgrid">
-      <div><div class="lbl">Firma Adı</div><input type="text" id="ay-firma" value="${D.firma}"></div>
+      <div><div class="lbl">Firma Adı</div><input type="text" id="ay-firma" value="${esc(D.firma)}"></div>
       <button class="btn sm success" onclick="firmaKaydet()" style="width:auto">Kaydet</button>
     </div>
   </div>
@@ -1307,13 +1429,15 @@ function renderAyarlar(m){
     <div class="section-hdr"><div class="mtitle" style="margin:0">📦 Ürünler</div><button class="btn sm success" onclick="urunEkleModal()">+ Ekle</button></div>
     <div id="ay-urunler">${D.urunler.map(u=>`
       <div class="item-row"><div class="name" style="flex:1">${u.ad} <span class="meta">${u.renk||''}</span></div>
+      <button class="btn sm" style="font-size:11px;padding:3px 8px" onclick="urunDuzenleModal('${u.id}')">✏️</button>
       <button class="sil-x" onclick="urunSil('${u.id}')">×</button></div>`).join('') || '<div class="empty">Ürün yok</div>'}</div>
   </div>
 
   <div class="card">
     <div class="section-hdr"><div class="mtitle" style="margin:0">📐 Boyutlar</div><button class="btn sm success" onclick="boyutEkleModal()">+ Ekle</button></div>
     <div id="ay-boyutlar">${D.boyutlar.map(b=>`
-      <div class="item-row"><div class="name" style="flex:1">${b.en}×${b.boy} cm</div>
+      <div class="item-row"><div class="name" style="flex:1">${b.en}×${b.boy} cm <span class="meta">(${m2Str(b.en*b.boy/10000)}/levha)</span></div>
+      <button class="btn sm" style="font-size:11px;padding:3px 8px" onclick="boyutDuzenleModal('${b.id}')">✏️</button>
       <button class="sil-x" onclick="boyutSil('${b.id}')">×</button></div>`).join('') || '<div class="empty">Boyut yok</div>'}</div>
   </div>
 
@@ -1321,6 +1445,7 @@ function renderAyarlar(m){
     <div class="section-hdr"><div class="mtitle" style="margin:0">📏 Kalınlıklar</div><button class="btn sm success" onclick="kalinlikEkleModal()">+ Ekle</button></div>
     <div id="ay-kalinliklar">${D.kalinliklar.map(k=>`
       <div class="item-row"><div class="name" style="flex:1">${k.mm} mm</div>
+      <button class="btn sm" style="font-size:11px;padding:3px 8px" onclick="kalinlikDuzenleModal('${k.id}')">✏️</button>
       <button class="sil-x" onclick="kalinlikSil('${k.id}')">×</button></div>`).join('') || '<div class="empty">Kalınlık yok</div>'}</div>
   </div>
 
@@ -1374,6 +1499,23 @@ function urunKaydetAy(){
   D.urunler.push({id:uid(),ad,renk:document.getElementById('u-renk').value.trim()});
   kaydet(); modalKapatDirekt(); renderTab('ayarlar'); toast('Ürün eklendi ✓');
 }
+function urunDuzenleModal(id){
+  const u=D.urunler.find(x=>x.id===id); if(!u) return;
+  modalAc(`<div class="modal-title">Ürün Düzenle</div>
+  <div class="formgrid">
+    <div><div class="lbl">Ürün Adı</div><input type="text" id="u-ad" value="${esc(u.ad)}"></div>
+    <div><div class="lbl">Renk / Tip</div><input type="text" id="u-renk" value="${esc(u.renk||'')}"></div>
+    <button class="btn success" onclick="urunGuncelleAy('${id}')">Güncelle</button>
+    <button class="btn danger" onclick="modalKapatDirekt()">İptal</button>
+  </div>`);
+}
+function urunGuncelleAy(id){
+  const u=D.urunler.find(x=>x.id===id); if(!u) return;
+  const ad=document.getElementById('u-ad').value.trim();
+  if(!ad){ toast('Ad gerekli!','var(--red)'); return; }
+  u.ad=ad; u.renk=document.getElementById('u-renk').value.trim();
+  kaydet(); modalKapatDirekt(); renderTab('ayarlar'); toast('Ürün güncellendi ✓');
+}
 function urunSil(id){ if(!confirm('Ürünü sil?')) return; D.urunler=D.urunler.filter(x=>x.id!==id); kaydet(); renderTab('ayarlar'); }
 
 // Boyut
@@ -1395,6 +1537,26 @@ function boyutKaydetAy(){
   D.boyutlar.push({id:uid(),en,boy});
   kaydet(); modalKapatDirekt(); renderTab('ayarlar'); toast('Boyut eklendi ✓');
 }
+function boyutDuzenleModal(id){
+  const b=D.boyutlar.find(x=>x.id===id); if(!b) return;
+  modalAc(`<div class="modal-title">Boyut Düzenle</div>
+  <div class="formgrid">
+    <div class="row2">
+      <div><div class="lbl">En (cm)</div><input type="number" id="b-en" value="${b.en}"></div>
+      <div><div class="lbl">Boy (cm)</div><input type="number" id="b-boy" value="${b.boy}"></div>
+    </div>
+    <button class="btn success" onclick="boyutGuncelleAy('${id}')">Güncelle</button>
+    <button class="btn danger" onclick="modalKapatDirekt()">İptal</button>
+  </div>`);
+}
+function boyutGuncelleAy(id){
+  const b=D.boyutlar.find(x=>x.id===id); if(!b) return;
+  const en=parseInt(document.getElementById('b-en').value)||0;
+  const boy=parseInt(document.getElementById('b-boy').value)||0;
+  if(!en||!boy){ toast('En ve boy gerekli!','var(--red)'); return; }
+  b.en=en; b.boy=boy;
+  kaydet(); modalKapatDirekt(); renderTab('ayarlar'); toast('Boyut güncellendi ✓');
+}
 function boyutSil(id){ if(!confirm('Boyutu sil?')) return; D.boyutlar=D.boyutlar.filter(x=>x.id!==id); kaydet(); renderTab('ayarlar'); }
 
 // Kalınlık
@@ -1411,6 +1573,22 @@ function kalinlikKaydetAy(){
   if(!mm){ toast('Kalınlık gerekli!','var(--red)'); return; }
   D.kalinliklar.push({id:uid(),mm});
   kaydet(); modalKapatDirekt(); renderTab('ayarlar'); toast('Kalınlık eklendi ✓');
+}
+function kalinlikDuzenleModal(id){
+  const k=D.kalinliklar.find(x=>x.id===id); if(!k) return;
+  modalAc(`<div class="modal-title">Kalınlık Düzenle</div>
+  <div class="formgrid">
+    <div><div class="lbl">Kalınlık (mm)</div><input type="number" id="k-mm" value="${k.mm}" step="0.5" min="0.5"></div>
+    <button class="btn success" onclick="kalinlikGuncelleAy('${id}')">Güncelle</button>
+    <button class="btn danger" onclick="modalKapatDirekt()">İptal</button>
+  </div>`);
+}
+function kalinlikGuncelleAy(id){
+  const k=D.kalinliklar.find(x=>x.id===id); if(!k) return;
+  const mm=parseFloat(document.getElementById('k-mm').value)||0;
+  if(!mm){ toast('Kalınlık gerekli!','var(--red)'); return; }
+  k.mm=mm;
+  kaydet(); modalKapatDirekt(); renderTab('ayarlar'); toast('Kalınlık güncellendi ✓');
 }
 function kalinlikSil(id){ if(!confirm('Kalınlığı sil?')) return; D.kalinliklar=D.kalinliklar.filter(x=>x.id!==id); kaydet(); renderTab('ayarlar'); }
 
