@@ -17,7 +17,15 @@
   --teal:#2EC4B6;--teal-bg:#0F2422;
 }
 *{box-sizing:border-box;margin:0;}
-body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;
+  /* Uygulama gibi davransın: yazılar seçilmesin, dokununca gri kutu çıkmasın */
+  -webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+  overscroll-behavior-y:contain;}
+/* Kopyalanabilir kalması gerekenler: form alanları ve seçilebilir işaretlenen metinler */
+input,textarea,select,.secilebilir{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default;}
+button,.tab,.btn,.chip,.turbtn,.sil-x,.item-row,.kpi{-webkit-user-select:none;user-select:none;}
 header{background:linear-gradient(135deg,#0A0714 0%,#241141 55%,#3B2168 100%);padding:max(18px,env(safe-area-inset-top)) 20px 16px;border-bottom:1px solid #2E2148;}
 .hdr-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .logo{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-weight:900;color:#2EC4B6;font-size:11px;letter-spacing:.02em;box-shadow:inset 0 0 0 1px rgba(46,196,182,.35);}
@@ -56,7 +64,7 @@ textarea{resize:vertical;min-height:70px;}
 .btn:active{filter:brightness(.88);}
 .btn.danger{background:linear-gradient(135deg,#6B1D1D,#9e2d2d);}
 .btn.success{background:linear-gradient(135deg,#0f4a35,#1a7a58);}
-.btn.sm{padding:8px 14px;font-size:13px;width:auto;border-radius:8px;}
+.btn.sm{padding:10px 15px;font-size:13px;width:auto;border-radius:9px;min-height:40px;}
 .turbtn{flex:1;padding:13px;border-radius:11px;border:2px solid var(--line);font-weight:800;font-size:15px;cursor:pointer;background:#1B1D28;color:var(--mut);}
 .turbtn.gelir-on{border-color:var(--green);background:var(--green-bg);color:var(--green);}
 .turbtn.gider-on{border-color:var(--red);background:var(--red-bg);color:var(--red);}
@@ -136,6 +144,41 @@ main{animation:fadeIn .18s ease-out;}
 .vardiya-grup{display:flex;gap:8px;flex-wrap:wrap;}
 .durus-satir{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
 .durus-satir input,.durus-satir select{flex:1;}
+.makine-rozet{display:inline-block;font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:20px;background:rgba(158,147,240,.16);color:var(--blue);border:1px solid rgba(158,147,240,.3);vertical-align:middle;white-space:nowrap;}
+/* Satış kalemi kartı — telefonda her alan etiketli ve tam genişlikte */
+.kalem-kart{background:#12131B;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;}
+.kalem-baslik{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);font-weight:800;}
+.kalem-alan{margin-bottom:9px;min-width:0;}
+.kalem-alan .lbl{margin-bottom:4px;}
+.kalem-alan select,.kalem-alan input{width:100%;}
+.kalem-ikili{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.kalem-birlesik{display:flex;gap:5px;}
+.kalem-birlesik input{flex:1;min-width:0;}
+.kalem-birlesik select{flex:none;width:74px;padding:11px 4px;font-size:13px;}
+.kalem-stok{font-size:12px;font-weight:700;margin:2px 0 9px;min-height:15px;}
+.kalem-ozet{font-size:12.5px;color:var(--teal);font-weight:700;min-height:16px;}
+@media(max-width:400px){ .kalem-ikili{grid-template-columns:1fr;} }
+/* Stok kartı — telefonda da düzgün dursun */
+.stok-kart{background:linear-gradient(165deg,#1D1F2C 0%,var(--card) 55%);border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid rgba(255,255,255,.04);}
+.stok-ust{display:flex;gap:12px;align-items:flex-start;}
+.stok-bilgi{flex:1;min-width:0;}
+.stok-ad{font-weight:800;font-size:15px;margin-bottom:5px;line-height:1.25;}
+.stok-bilgi .meta{margin-top:5px;font-size:12px;color:var(--mut);line-height:1.5;}
+.stok-sayi{text-align:right;flex:none;}
+.stok-butonlar{display:flex;gap:8px;margin-top:12px;}
+.stok-pm{flex:none;width:52px;min-height:42px;padding:0;font-size:21px;line-height:1;border-radius:10px;}
+.stok-duzelt{flex:1;min-height:42px;padding:0 16px;font-size:14px;border-radius:10px;}
+@media(max-width:480px){
+  .stok-ust{flex-direction:column;gap:8px;}
+  .stok-sayi{text-align:left;display:flex;align-items:center;gap:10px;}
+  .stok-sayi>div:last-child{margin-top:0!important;}
+}
+.hatirlatma-uyari{background:var(--amber-bg);border:1px solid rgba(245,185,66,.4);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.gorusme-satir{border-left:2px solid var(--teal);padding:8px 0 8px 12px;margin-bottom:8px;}
+.gorusme-tarih{font-size:11px;color:var(--mut);font-weight:700;}
+.gorusme-not{font-size:13px;margin-top:3px;white-space:pre-wrap;-webkit-user-select:text;user-select:text;}
+.must-detay{background:#12131B;border-radius:12px;padding:14px;margin-top:10px;border:1px solid var(--line);}
+.tel-link{color:var(--teal);text-decoration:none;font-weight:700;-webkit-user-select:text;user-select:text;}
 </style>
 </head>
 <body>
@@ -195,7 +238,7 @@ main{animation:fadeIn .18s ease-out;}
   <button class="tab" onclick="tabGec('satis',this)">💰 Satış</button>
   <button class="tab" onclick="tabGec('uretim',this)">🏭 Üretim</button>
   <button class="tab" onclick="tabGec('hammadde',this)">🧱 Hammadde</button>
-  <button class="tab" onclick="tabGec('musteriler',this)">👥 Müşteriler</button>
+  <button class="tab" onclick="tabGec('musteriler',this)">👥 Müşteriler<span id="must-rozet"></span></button>
   <button class="tab" onclick="tabGec('kasa',this)">🏦 Kasa</button>
   <button class="tab" onclick="tabGec('raporlar',this)">📈 Raporlar</button>
   <button class="tab" onclick="tabGec('ayarlar',this)">⚙️ Ayarlar</button>
@@ -233,12 +276,34 @@ function veriNormalize(v){
   const vars = varsayilanVeri();
   if(typeof v.pin!=='string' || !v.pin) v.pin = vars.pin;
   if(typeof v.firma!=='string' || !v.firma) v.firma = vars.firma;
+  // Tek seferlik: eski kayıtlarda kalan 1234 PIN'i 4758 yap
+  if(v.pinSurum !== 2){
+    if(v.pin === '1234') v.pin = '4758';
+    v.pinSurum = 2;
+  }
   LISTE_ALANLARI.forEach(alan=>{
     let x = v[alan];
     if(Array.isArray(x)) { v[alan] = x.filter(i=>i!=null); return; }
     // Firebase nesne olarak döndürdüyse diziye çevir
     if(x && typeof x==='object') { v[alan] = Object.values(x).filter(i=>i!=null); return; }
     v[alan] = [];
+  });
+  // Makine artık stoğun bir parçası — eski kayıtları uyarla
+  if(!v.makineStokSurum){
+    if(!v.makineler.length) v.makineler = vars.makineler.map(m=>({...m}));
+    const ilkMakine = v.makineler[0]?.id || '';
+    // Eski stok/satış kayıtlarına ilk makineyi ata (üretimde zaten makinaId var)
+    v.stok.forEach(s=>{ if(!s.makinaId) s.makinaId = ilkMakine; });
+    v.satislar.forEach(s=>(s.kalemler||[]).forEach(k=>{ if(!k.makinaId) k.makinaId = ilkMakine; }));
+    v.uretimKayitlari.forEach(u=>{ if(!u.makinaId) u.makinaId = ilkMakine; });
+    v.makineStokSurum = 1;
+  }
+  // Makinelerde artık desen alanı yok — eski alanı temizle
+  v.makineler.forEach(mk=>{ if('makinaId' in mk) delete mk.makinaId; });
+  // Müşteri alanlarını tamamla (CRM sonradan eklendi)
+  v.musteriler.forEach(mu=>{
+    if(!Array.isArray(mu.gorusmeler)) mu.gorusmeler = mu.gorusmeler && typeof mu.gorusmeler==='object' ? Object.values(mu.gorusmeler) : [];
+    if(typeof mu.bakiye!=='number') mu.bakiye = 0;
   });
   return v;
 }
@@ -248,6 +313,7 @@ let D = veriNormalize(JSON.parse(localStorage.getItem(ANAHTAR) || 'null') || var
 function varsayilanVeri(){
   return {
     pin:'4758',
+    pinSurum:2,
     firma:'Plastik Levha Üretim & Satış',
     urunler:[
       {id:'u1',ad:'Plastik Levha',renk:'Siyah'},
@@ -273,9 +339,11 @@ function varsayilanVeri(){
       {id:'h3',ad:'Siyah Masterbatch',birim:'kg'},
       {id:'h4',ad:'Beyaz Masterbatch',birim:'kg'}
     ],
+    // Her makine farklı iç tasarımda levha üretiyor.
+    // Bu yüzden makine, stoğun ayrılmaz bir parçası.
     makineler:[
-      {id:'m1',ad:'Ekstruder #1',model:''},
-      {id:'m2',ad:'Ekstruder #2',model:''}
+      {id:'m1',ad:'Yeşil Makine',model:''},
+      {id:'m2',ad:'Çin Makine',model:''}
     ],
     stok:[],
     satislar:[],
@@ -288,8 +356,10 @@ function varsayilanVeri(){
 
 function kaydet(){
   localStorage.setItem(ANAHTAR, JSON.stringify(D));
-  document.getElementById('son-guncelleme').textContent = simdi();
+  const sg=document.getElementById('son-guncelleme');
+  if(sg) sg.textContent = simdi();
   kasaGuncelle();
+  rozetGuncelle();
   // Firebase'e yaz (arka planda)
   fbSonYazma = Date.now();
   fetch(FB_URL, {
@@ -361,13 +431,19 @@ function simdi(){
   return new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
 }
 
-function bugun(){
-  return new Date().toISOString().slice(0,10);
+// YEREL tarih (toISOString UTC verir; TR'de gece yarısından sonra bir gün geri kayardı)
+function ymd(dt){
+  const y=dt.getFullYear(), a=String(dt.getMonth()+1).padStart(2,'0'), g=String(dt.getDate()).padStart(2,'0');
+  return `${y}-${a}-${g}`;
 }
+function bugun(){ return ymd(new Date()); }
+function gunEkle(n){ const d=new Date(); d.setDate(d.getDate()+n); return ymd(d); }
 
 function tarihStr(d){
   if(!d) return '—';
-  return new Date(d).toLocaleDateString('tr-TR');
+  const [y,a,g]=String(d).slice(0,10).split('-');
+  if(!y||!a||!g) return String(d);
+  return `${g}.${a}.${y}`;
 }
 
 function para(n){
@@ -429,6 +505,14 @@ function hdrGuncelle(){
   const el=document.getElementById('hdr-firma');
   if(el) el.textContent=D.firma||'';
   kasaGuncelle();
+  rozetGuncelle();
+}
+// Müşteriler sekmesinde bekleyen hatırlatma sayısı
+function rozetGuncelle(){
+  const r=document.getElementById('must-rozet');
+  if(!r) return;
+  const n=hatirlatmasiGelenler().length;
+  r.innerHTML = n ? `<span style="background:var(--amber);color:#1A1200;font-size:10px;font-weight:900;padding:1px 6px;border-radius:20px;margin-left:5px;vertical-align:middle">${n}</span>` : '';
 }
 
 // ── TABS ──────────────────────────────────────────────
@@ -481,15 +565,24 @@ function m2Str(v){ return (+v).toLocaleString('tr-TR',{minimumFractionDigits:2,m
 function adettenM2(adet,bid){ return +(adet*boyutM2(bid)).toFixed(3); }
 function m2denAdet(m2,bid){ const bm=boyutM2(bid); return bm?Math.ceil(m2/bm):0; }
 
-function stokBul(urunId,boyutId,kalinlikId,hammaddeId){
-  return D.stok.find(s=>s.urunId===urunId&&s.boyutId===boyutId&&s.kalinlikId===kalinlikId&&s.hammaddeId===hammaddeId);
+function makineAd(mid){ const m=D.makineler.find(x=>x.id===mid); return m?m.ad:'Makine belirsiz'; }
+
+// Stok kimliği: MAKİNE + ürün + boyut + kalınlık + hammadde
+// (aynı ürün farklı makineden çıkarsa ayrı stok satırı olur — iç tasarımları farklı)
+function stokAnahtar(k){
+  return [k.urunId||'',k.boyutId||'',k.kalinlikId||'',k.hammaddeId||'',k.makinaId||''].join('|');
+}
+function stokBul(k){
+  const a=stokAnahtar(k);
+  return D.stok.find(s=>stokAnahtar(s)===a);
 }
 
 // Stok günceller ve GERÇEKTEN uygulanan farkı döndürür (iade/geri alma için)
-function stokGuncelle(urunId,boyutId,kalinlikId,hammaddeId,fark,maliyet){
-  let s=stokBul(urunId,boyutId,kalinlikId,hammaddeId);
+function stokGuncelle(k,fark,maliyet){
+  let s=stokBul(k);
   if(!s){
-    s={id:uid(),urunId,boyutId,kalinlikId,hammaddeId,adet:0,maliyet:maliyet||0};
+    s={id:uid(),urunId:k.urunId||'',boyutId:k.boyutId||'',kalinlikId:k.kalinlikId||'',
+       hammaddeId:k.hammaddeId||'',makinaId:k.makinaId||'',adet:0,maliyet:maliyet||0};
     D.stok.push(s);
   }
   const eski=s.adet;
@@ -526,11 +619,28 @@ function hammaddeSelectHTML(nm,sel){
 function makineSelectHTML(nm,sel){
   return `<select name="${nm}">
     <option value="">— Makine —</option>
-    ${D.makineler.map(m=>`<option value="${m.id}"${m.id===sel?' selected':''}>${m.ad}</option>`).join('')}
+    ${D.makineler.map(m=>`<option value="${m.id}"${m.id===sel?' selected':''}>${esc(m.ad)}</option>`).join('')}
   </select>`;
 }
+
 // HTML kaçış — isimlerde " ' < > olursa form bozulmasın
 function esc(v){ return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Türkçe uyumlu küçük harf — 'İzmir'.toLowerCase() bozuk sonuç verir,
+// aramada "izmir" yazınca "İzmir" bulunmazdı
+function trKucuk(v){
+  return String(v??'')
+    .replace(/İ/g,'i').replace(/I/g,'ı').replace(/Ğ/g,'ğ').replace(/Ü/g,'ü')
+    .replace(/Ş/g,'ş').replace(/Ö/g,'ö').replace(/Ç/g,'ç')
+    .toLowerCase();
+}
+// tel: linki için telefonu temizle (boşluk, parantez, tire)
+function telTemiz(v){ return String(v??'').replace(/[^\d+]/g,''); }
+// Arama karşılaştırması: Türkçe harfleri de eşleştir (i↔ı, s↔ş, ...)
+function aramaNorm(v){
+  return trKucuk(v).replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ü/g,'u')
+    .replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c');
+}
 
 function musteriSelectHTML(nm,sel){
   const listId='musteri-list-'+Math.random().toString(36).slice(2);
@@ -572,7 +682,7 @@ function renderOzet(m){
   const gun7=[];
   for(let i=6;i>=0;i--){
     const d=new Date(); d.setDate(d.getDate()-i);
-    const k=d.toISOString().slice(0,10);
+    const k=ymd(d);
     gun7.push({k, lbl:d.toLocaleDateString('tr-TR',{weekday:'short'}),
       uretim:D.uretimKayitlari.filter(x=>x.tarih===k).reduce((s,x)=>s+x.adet,0),
       satis:D.satislar.filter(x=>x.tarih===k).reduce((s,x)=>s+x.toplam,0)
@@ -595,6 +705,16 @@ function renderOzet(m){
     <span>${sifirStok?`<b>${sifirStok} ürün stoğu tükendi!</b> `:''} ${kritikStok?`${kritikStok} ürün kritik stok seviyesinde.`:''}</span>
     <button class="btn sm" onclick="tabGec('stok',document.querySelectorAll('.tab')[1])">Stoka Git</button>
   </div>`:''}
+
+  ${(()=>{ const g=hatirlatmasiGelenler(); return g.length?`
+  <div class="hatirlatma-uyari">
+    <span style="font-size:20px">🔔</span>
+    <div style="flex:1;min-width:150px">
+      <div style="font-weight:800;color:var(--amber)">${g.length} müşteri hatırlatması</div>
+      <div style="font-size:12px;color:var(--mut);margin-top:2px">${g.slice(0,4).map(x=>esc(x.ad)).join(', ')}${g.length>4?` +${g.length-4}`:''}</div>
+    </div>
+    <button class="btn sm" onclick="tabGec('musteriler',document.querySelectorAll('.tab')[5])">Müşterilere Git</button>
+  </div>`:''; })()}
 
   <div class="card">
     <div class="mtitle">📈 Son 7 Gün Üretim & Satış</div>
@@ -638,36 +758,53 @@ function renderOzet(m){
 // STOK
 // ══════════════════════════════════════════════════════
 function renderStok(m){
-  m.innerHTML=`
+    m.innerHTML=`
   <div class="section-hdr">
     <div class="mtitle" style="margin:0">📦 Stok Listesi</div>
-    <button class="btn sm success" onclick="stokDuzeltModal()">+ Stok Düzelt</button>
+    <button class="btn sm success" onclick="stokDuzeltModal()">+ Stok Girişi</button>
   </div>
+  ${D.makineler.length>1?`<div class="vardiya-grup" style="margin-bottom:12px">
+    <button class="chip on" id="dfil-" onclick="stokMakineFiltre('')">Tüm Makineler</button>
+    ${D.makineler.map(mk=>`<button class="chip" id="dfil-${mk.id}" onclick="stokMakineFiltre('${mk.id}')">${esc(mk.ad)}</button>`).join('')}
+  </div>`:''}
   <div id="stok-liste"></div>`;
+  stokListeRender();
+}
+
+let stokFiltreMakine='';
+function stokMakineFiltre(did){
+  stokFiltreMakine=did;
+  document.querySelectorAll('[id^="dfil-"]').forEach(b=>b.classList.remove('on'));
+  document.getElementById('dfil-'+did)?.classList.add('on');
   stokListeRender();
 }
 
 function stokListeRender(){
   const c=document.getElementById('stok-liste');
   if(!c) return;
-  if(!D.stok.length){ c.innerHTML='<div class="empty">Henüz stok kaydı yok. Üretim yapıldıkça stok otomatik güncellenir.</div>'; return; }
-  const satir = D.stok.map(s=>{
+  let liste=D.stok;
+  if(stokFiltreMakine) liste=liste.filter(s=>(s.makinaId||'')===stokFiltreMakine);
+  if(!liste.length){ c.innerHTML=`<div class="empty">${D.stok.length?'Bu makinede stok yok.':'Henüz stok kaydı yok. Üretim yapıldıkça stok otomatik güncellenir.'}</div>`; return; }
+  const satir = liste.map(s=>{
     const cls = s.adet===0?'stok-zero':s.adet<10?'stok-low':'';
     const m2toplam = adettenM2(s.adet,s.boyutId);
     const bm2 = boyutM2(s.boyutId);
-    return `<div class="item-row">
-      <div style="flex:1">
-        <div class="name">${urunAd(s.urunId)}</div>
-        <div class="meta">${boyutAd(s.boyutId)} cm${bm2?` · <span style="color:var(--teal)">${m2Str(bm2)}/levha</span>`:''} · ${kalinlikAd(s.kalinlikId)} · ${hammaddeAd(s.hammaddeId)}</div>
+    return `<div class="stok-kart">
+      <div class="stok-ust">
+        <div class="stok-bilgi">
+          <div class="stok-ad">${urunAd(s.urunId)}</div>
+          <div><span class="makine-rozet">${esc(makineAd(s.makinaId))}</span></div>
+          <div class="meta">${boyutAd(s.boyutId)} cm · ${kalinlikAd(s.kalinlikId)} · ${hammaddeAd(s.hammaddeId)}${bm2?` · <span style="color:var(--teal)">${m2Str(bm2)}/levha</span>`:''}</div>
+        </div>
+        <div class="stok-sayi">
+          <div class="stok-badge ${cls}">${s.adet} levha</div>
+          ${m2toplam?`<div style="font-size:11.5px;color:var(--teal);margin-top:4px;font-weight:700">${m2Str(m2toplam)}</div>`:''}
+        </div>
       </div>
-      <div style="text-align:right">
-        <div class="stok-badge ${cls}">${s.adet} levha</div>
-        ${m2toplam?`<div style="font-size:11px;color:var(--teal);margin-top:3px">${m2Str(m2toplam)}</div>`:''}
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
-        <button class="btn sm danger" style="padding:4px 10px;font-size:16px;line-height:1" onclick="stokHizli('${s.id}',-1)">−</button>
-        <button class="btn sm success" style="padding:4px 10px;font-size:16px;line-height:1" onclick="stokHizli('${s.id}',1)">+</button>
-        <button class="btn sm" onclick="stokDuzeltModal('${s.id}')">✏️ Düzelt</button>
+      <div class="stok-butonlar">
+        <button class="btn danger stok-pm" onclick="stokHizli('${s.id}',-1)">−</button>
+        <button class="btn success stok-pm" onclick="stokHizli('${s.id}',1)">+</button>
+        <button class="btn stok-duzelt" onclick="stokDuzeltModal('${s.id}')">Düzelt</button>
       </div>
     </div>`;
   });
@@ -686,41 +823,58 @@ function stokHizli(sid,delta){
 
 function stokDuzeltModal(sid){
   const s=sid?D.stok.find(x=>x.id===sid):null;
-  modalAc(`<div class="modal-title">Stok ${s?'Düzelt':'Giriş'}</div>
+  modalAc(`<div class="modal-title">Stok ${s?'Düzelt':'Girişi'}</div>
   <div class="formgrid">
-    ${urunSelectHTML('urunId',s?.urunId)}
-    ${boyutSelectHTML('boyutId',s?.boyutId)}
-    ${kalinlikSelectHTML('kalinlikId',s?.kalinlikId)}
-    ${hammaddeSelectHTML('hammaddeId',s?.hammaddeId)}
-    <div>
-      <div class="lbl">Adet (levha)</div>
-      <input type="number" id="stok-adet" min="0" value="${s?.adet||0}">
+    <div><div class="lbl">Ürün</div>${urunSelectHTML('urunId',s?.urunId)}</div>
+    <div><div class="lbl">Makine (hangi makineden çıktı)</div>${makineSelectHTML('makinaId',s?.makinaId)}</div>
+    <div class="row2">
+      <div><div class="lbl">Boyut</div>${boyutSelectHTML('boyutId',s?.boyutId)}</div>
+      <div><div class="lbl">Kalınlık</div>${kalinlikSelectHTML('kalinlikId',s?.kalinlikId)}</div>
     </div>
-    <div>
-      <div class="lbl">Birim Maliyet (₺)</div>
-      <input type="number" id="stok-maliyet" min="0" step="0.01" value="${s?.maliyet||0}">
+    <div><div class="lbl">Hammadde</div>${hammaddeSelectHTML('hammaddeId',s?.hammaddeId)}</div>
+    <div class="row2">
+      <div><div class="lbl">Adet (levha)</div><input type="number" id="stok-adet" min="0" value="${s?.adet??0}"></div>
+      <div><div class="lbl">Birim Maliyet (₺)</div><input type="number" id="stok-maliyet" min="0" step="0.01" value="${s?.maliyet??0}"></div>
     </div>
     <button class="btn success" onclick="stokKaydet('${sid||''}')">Kaydet</button>
-    <button class="btn danger" onclick="modalKapatDirekt()">İptal</button>
+    ${sid?`<button class="btn danger" onclick="stokSil('${sid}')">Bu Stok Satırını Sil</button>`:''}
+    <button class="btn" onclick="modalKapatDirekt()">İptal</button>
   </div>`);
 }
 
 function stokKaydet(sid){
   const modal=document.getElementById('modal-icerik');
   const get=n=>modal.querySelector(`[name="${n}"]`)?.value||'';
-  const urunId=get('urunId'),boyutId=get('boyutId'),kalinlikId=get('kalinlikId'),hammaddeId=get('hammaddeId');
+  const anahtar={urunId:get('urunId'),boyutId:get('boyutId'),kalinlikId:get('kalinlikId'),
+                 hammaddeId:get('hammaddeId'),makinaId:get('makinaId')};
   const adet=parseInt(document.getElementById('stok-adet').value)||0;
   const maliyet=parseFloat(document.getElementById('stok-maliyet').value)||0;
-  if(!urunId||!boyutId||!kalinlikId||!hammaddeId){ toast('Tüm alanları doldurun!','var(--red)'); return; }
+  if(!anahtar.urunId||!anahtar.boyutId||!anahtar.kalinlikId||!anahtar.hammaddeId){
+    toast('Ürün, boyut, kalınlık ve hammadde zorunlu!','var(--red)'); return;
+  }
+  if(D.makineler.length && !anahtar.makinaId){ toast('Makine seçin!','var(--red)'); return; }
   if(sid){
     const s=D.stok.find(x=>x.id===sid);
-    if(s){ s.adet=adet; s.maliyet=maliyet; }
+    if(s){
+      // Aynı kimlikte başka satır varsa çakışmayı önle
+      const cakisan=D.stok.find(x=>x.id!==sid&&stokAnahtar(x)===stokAnahtar(anahtar));
+      if(cakisan){ toast('Bu özellikte başka bir stok satırı zaten var!','var(--red)'); return; }
+      Object.assign(s,anahtar,{adet,maliyet});
+    }
   } else {
-    let s=stokBul(urunId,boyutId,kalinlikId,hammaddeId);
+    let s=stokBul(anahtar);
     if(s){ s.adet=adet; s.maliyet=maliyet; }
-    else D.stok.push({id:uid(),urunId,boyutId,kalinlikId,hammaddeId,adet,maliyet});
+    else D.stok.push({id:uid(),...anahtar,adet,maliyet});
   }
-  kaydet(); modalKapatDirekt(); stokListeRender(); toast('Stok güncellendi ✓');
+  kaydet(); modalKapatDirekt(); renderTab('stok'); toast('Stok güncellendi ✓');
+}
+
+function stokSil(sid){
+  const s=D.stok.find(x=>x.id===sid);
+  if(!s) return;
+  if(!confirm(`"${urunAd(s.urunId)} ${makineAd(s.makinaId)} ${boyutAd(s.boyutId)}" stok satırı silinsin mi?\n\nMevcut: ${s.adet} levha`)) return;
+  D.stok=D.stok.filter(x=>x.id!==sid);
+  kaydet(); modalKapatDirekt(); renderTab('stok'); toast('Stok satırı silindi','var(--amber)');
 }
 
 // ══════════════════════════════════════════════════════
@@ -745,10 +899,10 @@ function satisListeRender(){
     <thead><tr><th>Tarih</th><th>Müşteri</th><th>Kalemler</th><th class="num">Toplam</th><th class="num">Tahsilat</th><th></th></tr></thead>
     <tbody>${liste.map(s=>`<tr>
       <td>${tarihStr(s.tarih)}</td>
-      <td>${s.musteriAd||musteriAd(s.musteriId)||'Perakende'}</td>
+      <td>${esc(s.musteriAd||musteriAd(s.musteriId)||'Perakende')}</td>
       <td>${(s.kalemler||[]).map(k=>{
         const m2=k.satisM2||adettenM2(k.adet,k.boyutId);
-        return `${urunAd(k.urunId)} ${boyutAd(k.boyutId)} ${kalinlikAd(k.kalinlikId)} — ${k.adet} levha / <span style="color:var(--teal)">${m2Str(m2)}</span>`;
+        return `${urunAd(k.urunId)} <span class="makine-rozet">${esc(makineAd(k.makinaId))}</span> ${boyutAd(k.boyutId)} ${kalinlikAd(k.kalinlikId)} — ${k.adet} levha / <span style="color:var(--teal)">${m2Str(m2)}</span>`;
       }).join('<br>')}</td>
       <td class="num yesil">${para(s.toplam)}</td>
       <td class="num ${s.tahsilat>=s.toplam?'yesil':'kirmizi'}">${para(s.tahsilat)}</td>
@@ -759,7 +913,7 @@ function satisListeRender(){
 
 let satisKalemler=[];
 function satisModal(){
-  satisKalemler=[{id:uid(),urunId:'',boyutId:'',kalinlikId:'',hammaddeId:'',birim:'adet',fiyatBirim:'adet',miktar:0,birimFiyat:0}];
+  satisKalemler=[{id:uid(),urunId:'',makinaId:'',boyutId:'',kalinlikId:'',hammaddeId:'',birim:'adet',fiyatBirim:'adet',miktar:0,birimFiyat:0}];
   satisModalRender();
 }
 
@@ -784,29 +938,43 @@ function satisModalRender(){
 }
 
 function kalemSatirHTML(k,i){
-  const stokVar = k.urunId ? (stokBul(k.urunId,k.boyutId,k.kalinlikId,k.hammaddeId)?.adet ?? null) : null;
-  return `<div class="kalem-satir" id="kalem-${k.id}" style="flex-wrap:wrap;gap:6px;align-items:flex-end;">
-    <div style="display:flex;gap:6px;flex:1;flex-wrap:wrap;min-width:0">
-      ${urunSelectHTML(`urun_${i}`,k.urunId,'')}
-      ${boyutSelectHTML(`boyut_${i}`,k.boyutId)}
-      ${kalinlikSelectHTML(`kalinlik_${i}`,k.kalinlikId)}
-      ${hammaddeSelectHTML(`hammadde_${i}`,k.hammaddeId)}
+  const stokVar = k.urunId ? (stokBul(k)?.adet ?? null) : null;
+  return `<div class="kalem-kart" id="kalem-${k.id}">
+    <div class="kalem-baslik">
+      <span>Kalem ${i+1}</span>
+      <button class="sil-x" onclick="kalemSil(${i})">×</button>
     </div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-      <select id="kbirim_${i}" onchange="kalemBirimDegis(${i})" style="width:80px;flex:none;padding:7px 6px;font-size:13px;">
-        <option value="adet"${k.birim!=='m2'?' selected':''}>Adet</option>
-        <option value="m2"${k.birim==='m2'?' selected':''}>m²</option>
-      </select>
-      <input type="number" placeholder="${k.birim==='m2'?'m²':'Adet'}" min="0.01" step="0.01" value="${k.miktar||''}" id="kmiktar_${i}" onchange="kalemHesapla(${i})" style="width:80px;flex:none;">
-      <span id="kadet-goster_${i}" style="font-size:11px;color:var(--teal);white-space:nowrap;min-width:60px"></span>
-      <input type="number" placeholder="₺/birim" min="0" step="0.01" value="${k.birimFiyat||''}" id="kfiyat_${i}" style="width:90px;flex:none;">
-      <select id="kfiyatbirim_${i}" style="width:70px;flex:none;padding:7px 6px;font-size:13px;">
-        <option value="adet"${k.fiyatBirim!=='m2'?' selected':''}>/ adet</option>
-        <option value="m2"${k.fiyatBirim==='m2'?' selected':''}>/ m²</option>
-      </select>
+    <div class="kalem-alan"><div class="lbl">Ürün</div>${urunSelectHTML(`urun_${i}`,k.urunId,'')}</div>
+    <div class="kalem-alan"><div class="lbl">Makine</div>${makineSelectHTML(`makine_${i}`,k.makinaId)}</div>
+    <div class="kalem-ikili">
+      <div class="kalem-alan"><div class="lbl">Boyut</div>${boyutSelectHTML(`boyut_${i}`,k.boyutId)}</div>
+      <div class="kalem-alan"><div class="lbl">Kalınlık</div>${kalinlikSelectHTML(`kalinlik_${i}`,k.kalinlikId)}</div>
     </div>
-    <span id="kstok_${i}" style="font-size:11px;white-space:nowrap;color:${stokVar===null?'var(--mut)':stokVar>0?'var(--green)':'var(--red)'}">${k.urunId?(stokVar===null?'stok kaydı yok':`stok: ${stokVar}`):''}</span>
-    <button class="sil-x" onclick="kalemSil(${i})">×</button>
+    <div class="kalem-alan"><div class="lbl">Hammadde</div>${hammaddeSelectHTML(`hammadde_${i}`,k.hammaddeId)}</div>
+    <div class="kalem-stok" id="kstok_${i}" style="color:${stokVar===null?'var(--mut)':stokVar>0?'var(--green)':'var(--red)'}">${k.urunId?(stokVar===null?'stok kaydı yok':`stok: ${stokVar}`):''}</div>
+    <div class="kalem-ikili">
+      <div class="kalem-alan">
+        <div class="lbl">Miktar</div>
+        <div class="kalem-birlesik">
+          <input type="number" placeholder="0" min="0.01" step="0.01" value="${k.miktar||''}" id="kmiktar_${i}" onchange="kalemHesapla(${i})">
+          <select id="kbirim_${i}" onchange="kalemBirimDegis(${i})">
+            <option value="adet"${k.birim!=='m2'?' selected':''}>Adet</option>
+            <option value="m2"${k.birim==='m2'?' selected':''}>m²</option>
+          </select>
+        </div>
+      </div>
+      <div class="kalem-alan">
+        <div class="lbl">Birim Fiyat</div>
+        <div class="kalem-birlesik">
+          <input type="number" placeholder="₺" min="0" step="0.01" value="${k.birimFiyat||''}" id="kfiyat_${i}" onchange="kalemHesapla(${i})">
+          <select id="kfiyatbirim_${i}" onchange="kalemHesapla(${i})">
+            <option value="adet"${k.fiyatBirim!=='m2'?' selected':''}>/adet</option>
+            <option value="m2"${k.fiyatBirim==='m2'?' selected':''}>/m²</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="kalem-ozet" id="kadet-goster_${i}"></div>
   </div>`;
 }
 
@@ -816,6 +984,7 @@ function kalemleriOku(){
   if(!modal) return;
   satisKalemler.forEach((k,i)=>{
     k.urunId=modal.querySelector(`[name="urun_${i}"]`)?.value||'';
+    k.makinaId=modal.querySelector(`[name="makine_${i}"]`)?.value||'';
     k.boyutId=modal.querySelector(`[name="boyut_${i}"]`)?.value||'';
     k.kalinlikId=modal.querySelector(`[name="kalinlik_${i}"]`)?.value||'';
     k.hammaddeId=modal.querySelector(`[name="hammadde_${i}"]`)?.value||'';
@@ -843,10 +1012,14 @@ function kalemHesapla(i){
   const birim=document.getElementById(`kbirim_${i}`)?.value||'adet';
   const miktar=parseFloat(document.getElementById(`kmiktar_${i}`)?.value)||0;
   const modal=document.getElementById('modal-icerik');
-  const urunId=modal?.querySelector(`[name="urun_${i}"]`)?.value||'';
-  const boyutId=modal?.querySelector(`[name="boyut_${i}"]`)?.value||'';
-  const kalinlikId=modal?.querySelector(`[name="kalinlik_${i}"]`)?.value||'';
-  const hammaddeId=modal?.querySelector(`[name="hammadde_${i}"]`)?.value||'';
+  const anahtar={
+    urunId:modal?.querySelector(`[name="urun_${i}"]`)?.value||'',
+    makinaId:modal?.querySelector(`[name="makine_${i}"]`)?.value||'',
+    boyutId:modal?.querySelector(`[name="boyut_${i}"]`)?.value||'',
+    kalinlikId:modal?.querySelector(`[name="kalinlik_${i}"]`)?.value||'',
+    hammaddeId:modal?.querySelector(`[name="hammadde_${i}"]`)?.value||''
+  };
+  const {urunId,boyutId}=anahtar;
   const gs=document.getElementById(`kadet-goster_${i}`);
   let istenenAdet=0;
   if(gs){
@@ -863,7 +1036,7 @@ function kalemHesapla(i){
   const st=document.getElementById(`kstok_${i}`);
   if(st){
     if(!urunId){ st.textContent=''; return; }
-    const s=stokBul(urunId,boyutId,kalinlikId,hammaddeId);
+    const s=stokBul(anahtar);
     if(!s){ st.textContent='stok kaydı yok'; st.style.color='var(--mut)'; }
     else if(istenenAdet>s.adet){ st.textContent=`⚠ stok: ${s.adet} (yetersiz!)`; st.style.color='var(--red)'; }
     else { st.textContent=`stok: ${s.adet}`; st.style.color='var(--green)'; }
@@ -873,13 +1046,13 @@ function kalemHesapla(i){
 // Kalem satırındaki select'ler değişince stok/m² göstergesini tazele
 document.addEventListener('change', e=>{
   const nm=e.target?.getAttribute?.('name')||'';
-  const m=nm.match(/^(?:urun|boyut|kalinlik|hammadde)_(\d+)$/);
+  const m=nm.match(/^(?:urun|makine|boyut|kalinlik|hammadde)_(\d+)$/);
   if(m) kalemHesapla(+m[1]);
 });
 
 function kalemEkle(){
   kalemleriOku();
-  satisKalemler.push({id:uid(),urunId:'',boyutId:'',kalinlikId:'',hammaddeId:'',birim:'adet',fiyatBirim:'adet',miktar:0,birimFiyat:0});
+  satisKalemler.push({id:uid(),urunId:'',makinaId:'',boyutId:'',kalinlikId:'',hammaddeId:'',birim:'adet',fiyatBirim:'adet',miktar:0,birimFiyat:0});
   kalemleriCiz();
 }
 
@@ -897,7 +1070,7 @@ function satisKaydet(){
   // Var olan müşteriyle eşleştir; yoksa yeni müşteri oluştur ve ID'sini kullan
   let musteriId='';
   if(musteriAdiGiris){
-    const eslesen=D.musteriler.find(x=>x.ad.toLowerCase()===musteriAdiGiris.toLowerCase());
+    const eslesen=D.musteriler.find(x=>trKucuk(x.ad)===trKucuk(musteriAdiGiris));
     if(eslesen) musteriId=eslesen.id;
     else {
       musteriId=uid();
@@ -910,16 +1083,21 @@ function satisKaydet(){
   const kalemler=[];
   let toplam=0;
   for(let i=0;i<satisKalemler.length;i++){
-    const urunId=modal.querySelector(`[name="urun_${i}"]`)?.value||'';
-    const boyutId=modal.querySelector(`[name="boyut_${i}"]`)?.value||'';
-    const kalinlikId=modal.querySelector(`[name="kalinlik_${i}"]`)?.value||'';
-    const hammaddeId=modal.querySelector(`[name="hammadde_${i}"]`)?.value||'';
+    const anahtar={
+      urunId:modal.querySelector(`[name="urun_${i}"]`)?.value||'',
+      makinaId:modal.querySelector(`[name="makine_${i}"]`)?.value||'',
+      boyutId:modal.querySelector(`[name="boyut_${i}"]`)?.value||'',
+      kalinlikId:modal.querySelector(`[name="kalinlik_${i}"]`)?.value||'',
+      hammaddeId:modal.querySelector(`[name="hammadde_${i}"]`)?.value||''
+    };
+    const {urunId,makinaId,boyutId,kalinlikId}=anahtar;
     const birim=document.getElementById(`kbirim_${i}`)?.value||'adet';
     const fiyatBirim=document.getElementById(`kfiyatbirim_${i}`)?.value||'adet';
     const miktar=parseFloat(document.getElementById(`kmiktar_${i}`)?.value)||0;
     const birimFiyat=parseFloat(document.getElementById(`kfiyat_${i}`)?.value)||0;
     if(!urunId||!miktar) continue;
     if(!boyutId){ toast(`${i+1}. kalemde boyut seçilmedi!`,'var(--red)'); return; }
+    if(D.makineler.length && !makinaId){ toast(`${i+1}. kalemde makine seçilmedi!`,'var(--red)'); return; }
     // m² veya adet çevir
     let adet, satisM2;
     if(birim==='m2'){
@@ -930,10 +1108,10 @@ function satisKaydet(){
       satisM2=adettenM2(adet,boyutId);
     }
     // Stok yeterlilik kontrolü
-    const stokKaydi=stokBul(urunId,boyutId,kalinlikId,hammaddeId);
+    const stokKaydi=stokBul(anahtar);
     const mevcut=stokKaydi?stokKaydi.adet:0;
     if(adet>mevcut){
-      const ad=`${urunAd(urunId)} ${boyutAd(boyutId)} ${kalinlikAd(kalinlikId)}`;
+      const ad=`${urunAd(urunId)} · ${makineAd(makinaId)} · ${boyutAd(boyutId)} · ${kalinlikAd(kalinlikId)}`;
       if(!confirm(`⚠ STOK YETERSİZ\n\n${ad}\nİstenen: ${adet} levha\nMevcut: ${mevcut} levha\n\nYine de satışı kaydetmek istiyor musunuz?\n(Stok eksiye düşmez, 0 olur)`)) return;
     }
     // Fiyat hesabı
@@ -941,8 +1119,8 @@ function satisKaydet(){
     if(fiyatBirim==='m2') kalemToplam=satisM2*birimFiyat;
     else kalemToplam=adet*birimFiyat;
     // Stok düş — gerçekten düşen miktarı sakla (silinince doğru iade için)
-    const dusen=stokGuncelle(urunId,boyutId,kalinlikId,hammaddeId,-adet);
-    kalemler.push({urunId,boyutId,kalinlikId,hammaddeId,adet,dusulen:-dusen,satisM2,birimFiyat,fiyatBirim,birim});
+    const dusen=stokGuncelle(anahtar,-adet);
+    kalemler.push({...anahtar,adet,dusulen:-dusen,satisM2,birimFiyat,fiyatBirim,birim});
     toplam+=kalemToplam;
   }
   if(!kalemler.length){ toast('En az bir kalem girin!','var(--red)'); return; }
@@ -965,7 +1143,7 @@ function satisSil(id){
     // Stok geri yükle (sadece gerçekten düşen kadar)
     (s.kalemler||[]).forEach(k=>{
       const geri = k.dusulen!==undefined ? k.dusulen : k.adet;
-      if(geri>0) stokGuncelle(k.urunId,k.boyutId,k.kalinlikId,k.hammaddeId,geri);
+      if(geri>0) stokGuncelle(k,geri);
     });
     // Kasa hareketini geri al
     if(s.tahsilat>0){
@@ -1005,8 +1183,10 @@ function uretimListeRender(){
   c.innerHTML=liste.map(u=>`
     <div class="item-row" style="flex-wrap:wrap;gap:10px;">
       <div style="flex:1;min-width:200px">
-        <div class="name">${urunAd(u.urunId)} <span style="color:var(--mut);font-size:12px">${boyutAd(u.boyutId)} · ${kalinlikAd(u.kalinlikId)} · ${hammaddeAd(u.hammaddeId)}</span></div>
-        <div class="meta">🏭 ${makineAd(u.makinaId)} · 👷 ${u.operatör||'—'} · ${u.vardiya||''} · ${tarihStr(u.tarih)}</div>
+        <div class="name" style="line-height:1.3">${urunAd(u.urunId)}</div>
+        <div style="margin:5px 0"><span class="makine-rozet">🏭 ${esc(makineAd(u.makinaId))}</span></div>
+        <div class="meta">${boyutAd(u.boyutId)} · ${kalinlikAd(u.kalinlikId)} · ${hammaddeAd(u.hammaddeId)}</div>
+        <div class="meta">👷 ${esc(u.operatör||'—')} · ${esc(u.vardiya||'')} · ${tarihStr(u.tarih)}</div>
         ${u.hammaddeMiktar?`<div class="meta">🧱 Hammadde: ${u.hammaddeMiktar} kg</div>`:''}
         ${(u.duruslar||[]).length?`<div class="meta kirmizi">⏸ ${u.duruslar.length} duruş kaydı</div>`:''}
       </div>
@@ -1027,12 +1207,12 @@ function uretimModal(){
       <div><div class="lbl">Tarih</div><input type="date" id="u-tarih" value="${bugun()}"></div>
       <div><div class="lbl">Makine</div>${makineSelectHTML('makinaId','')}</div>
     </div>
-    ${urunSelectHTML('urunId','')}
-    <div class="row3">
-      ${boyutSelectHTML('boyutId','')}
-      ${kalinlikSelectHTML('kalinlikId','')}
-      ${hammaddeSelectHTML('hammaddeId','')}
+    <div><div class="lbl">Ürün</div>${urunSelectHTML('urunId','')}</div>
+    <div class="row2">
+      <div><div class="lbl">Boyut</div>${boyutSelectHTML('boyutId','')}</div>
+      <div><div class="lbl">Kalınlık</div>${kalinlikSelectHTML('kalinlikId','')}</div>
     </div>
+    <div><div class="lbl">Hammadde</div>${hammaddeSelectHTML('hammaddeId','')}</div>
     <div class="row2">
       <div><div class="lbl">Üretilen Adet (levha)</div><input type="number" id="u-adet" min="1" placeholder="0"></div>
       <div><div class="lbl">Hammadde Kullanımı (kg)</div><input type="number" id="u-hm" min="0" step="0.1" placeholder="0"></div>
@@ -1088,10 +1268,14 @@ function uretimKaydet(){
   const modal=document.getElementById('modal-icerik');
   const tarih=document.getElementById('u-tarih').value||bugun();
   const makinaId=modal.querySelector('[name="makinaId"]')?.value||'';
-  const urunId=modal.querySelector('[name="urunId"]')?.value||'';
-  const boyutId=modal.querySelector('[name="boyutId"]')?.value||'';
-  const kalinlikId=modal.querySelector('[name="kalinlikId"]')?.value||'';
-  const hammaddeId=modal.querySelector('[name="hammaddeId"]')?.value||'';
+  const anahtar={
+    urunId:modal.querySelector('[name="urunId"]')?.value||'',
+    makinaId,
+    boyutId:modal.querySelector('[name="boyutId"]')?.value||'',
+    kalinlikId:modal.querySelector('[name="kalinlikId"]')?.value||'',
+    hammaddeId:modal.querySelector('[name="hammaddeId"]')?.value||''
+  };
+  const {urunId,boyutId,kalinlikId,hammaddeId}=anahtar;
   const adet=parseInt(document.getElementById('u-adet').value)||0;
   const hammaddeMiktar=parseFloat(document.getElementById('u-hm').value)||0;
   const operatör=document.getElementById('u-operator').value;
@@ -1104,6 +1288,7 @@ function uretimKaydet(){
     neden:document.getElementById(`dneden_${i}`)?.value||''
   })).filter(d=>d.sure>0);
   if(!boyutId){ toast('Boyut seçilmedi!','var(--red)'); return; }
+  if(D.makineler.length && !makinaId){ toast('Makine seçilmedi!','var(--red)'); return; }
   // Hammadde yeterlilik kontrolü
   if(hammaddeId&&hammaddeMiktar>0){
     const hs=D.hammaddeStok.find(x=>x.hammaddeId===hammaddeId);
@@ -1113,15 +1298,15 @@ function uretimKaydet(){
       if(!confirm(`⚠ HAMMADDE YETERSİZ\n\n${hammaddeAd(hammaddeId)}\nGerekli: ${hammaddeMiktar} ${h?.birim||''}\nMevcut: ${mevcut} ${h?.birim||''}\n\nYine de üretimi kaydetmek istiyor musunuz?`)) return;
     }
   }
-  // Stok artır
-  stokGuncelle(urunId,boyutId,kalinlikId,hammaddeId,adet);
+  // Stok artır (makine dahil)
+  stokGuncelle(anahtar,adet);
   // Hammadde stok düş
   if(hammaddeId&&hammaddeMiktar>0){
     let hs=D.hammaddeStok.find(x=>x.hammaddeId===hammaddeId);
     if(hs) hs.miktar=Math.max(0,hs.miktar-hammaddeMiktar);
     else D.hammaddeStok.push({id:uid(),hammaddeId,miktar:0,birimFiyat:0});
   }
-  D.uretimKayitlari.push({id:uid(),tarih,makinaId,urunId,boyutId,kalinlikId,hammaddeId,adet,hammaddeMiktar,operatör,vardiya,duruslar,not});
+  D.uretimKayitlari.push({id:uid(),tarih,makinaId,...anahtar,adet,hammaddeMiktar,operatör,vardiya,duruslar,not});
   kaydet(); modalKapatDirekt(); renderTab('uretim'); toast(`${adet} levha üretim kaydedildi ✓`);
 }
 
@@ -1130,7 +1315,7 @@ function uretimSil(id){
   const u=D.uretimKayitlari.find(x=>x.id===id);
   if(u){
     // Üretilen levhaları stoktan düş
-    stokGuncelle(u.urunId,u.boyutId,u.kalinlikId,u.hammaddeId,-u.adet);
+    stokGuncelle(u,-u.adet);
     // Harcanan hammaddeyi geri ekle
     if(u.hammaddeId && u.hammaddeMiktar>0){
       let hs=D.hammaddeStok.find(x=>x.hammaddeId===u.hammaddeId);
@@ -1205,62 +1390,240 @@ function hmKaydet(){
 // ══════════════════════════════════════════════════════
 // MÜŞTERİLER
 // ══════════════════════════════════════════════════════
+// Hatırlatması bugün veya geçmişte olan müşteriler
+function hatirlatmasiGelenler(){
+  const b=bugun();
+  return D.musteriler.filter(mu=>mu.hatirlatmaTarih && mu.hatirlatmaTarih<=b);
+}
+
 function renderMusteriler(m){
+  const gelenler=hatirlatmasiGelenler();
   m.innerHTML=`
   <div class="section-hdr">
     <div class="mtitle" style="margin:0">👥 Müşteriler</div>
     <button class="btn sm success" onclick="musteriModal()">+ Yeni Müşteri</button>
   </div>
+  ${gelenler.length?`<div class="hatirlatma-uyari">
+    <span style="font-size:20px">🔔</span>
+    <div style="flex:1;min-width:160px">
+      <div style="font-weight:800;color:var(--amber)">${gelenler.length} hatırlatma zamanı geldi</div>
+      <div style="font-size:12px;color:var(--mut);margin-top:2px">${gelenler.map(g=>esc(g.ad)).join(', ')}</div>
+    </div>
+  </div>`:''}
+  <div style="margin-bottom:12px">
+    <input type="text" id="must-ara" placeholder="🔍 Müşteri ara (ad, telefon, şehir)" oninput="musteriListeRender()" autocomplete="off">
+  </div>
   <div id="musteri-liste"></div>`;
+  musteriListeRender();
+}
+
+let acikMusteri='';
+function musteriDetayAc(mid){
+  acikMusteri = (acikMusteri===mid) ? '' : mid;
   musteriListeRender();
 }
 
 function musteriListeRender(){
   const c=document.getElementById('musteri-liste');
   if(!c) return;
-  if(!D.musteriler.length){ c.innerHTML='<div class="empty">Henüz müşteri eklenmedi</div>'; return; }
-  c.innerHTML=D.musteriler.map(mu=>`
-    <div class="item-row">
-      <div style="flex:1">
-        <div class="name">${mu.ad}</div>
-        <div class="meta">${mu.telefon||''} ${mu.sehir?'· '+mu.sehir:''}</div>
+  const q=aramaNorm((document.getElementById('must-ara')?.value||'').trim());
+  let liste=D.musteriler;
+  if(q) liste=liste.filter(mu=>
+    aramaNorm(mu.ad).includes(q) ||
+    aramaNorm(mu.telefon).includes(q) ||
+    aramaNorm(mu.sehir).includes(q) ||
+    aramaNorm(mu.yetkili).includes(q) ||
+    aramaNorm(mu.email).includes(q));
+  if(!liste.length){ c.innerHTML=`<div class="empty">${D.musteriler.length?'Aramaya uyan müşteri yok':'Henüz müşteri eklenmedi'}</div>`; return; }
+  const b=bugun();
+  c.innerHTML=liste.map(mu=>{
+    const acik = acikMusteri===mu.id;
+    const hatirlat = mu.hatirlatmaTarih;
+    const hatirlatGecti = hatirlat && hatirlat<=b;
+    const gorusmeler=[...(mu.gorusmeler||[])].sort((a,x)=>(x.tarih||'').localeCompare(a.tarih||''));
+    const satislari=D.satislar.filter(s=>s.musteriId===mu.id);
+    return `<div class="card" style="padding:0;overflow:hidden;margin-bottom:10px">
+      <div class="item-row" style="border:none;margin:0;cursor:pointer" onclick="musteriDetayAc('${mu.id}')">
+        <div style="flex:1;min-width:0">
+          <div class="name" style="line-height:1.3">${esc(mu.ad)}</div>
+          ${hatirlat?`<div style="margin-top:5px"><span class="makine-rozet" style="background:${hatirlatGecti?'rgba(245,185,66,.2)':'rgba(169,173,196,.15)'};color:${hatirlatGecti?'var(--amber)':'var(--mut)'};border-color:transparent">🔔 ${tarihStr(hatirlat)}</span></div>`:''}
+          <div class="meta" style="margin-top:5px">${esc(mu.telefon||'telefon yok')}${mu.sehir?' · '+esc(mu.sehir):''}${gorusmeler.length?` · ${gorusmeler.length} görüşme`:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="stok-badge ${(mu.bakiye||0)>0?'stok-low':''}">${(mu.bakiye||0)>0?'Borç: ':''}${para(mu.bakiye||0)}</div>
+        </div>
+        <span style="color:var(--mut);font-size:13px;padding:0 4px">${acik?'▲':'▼'}</span>
       </div>
-      <div style="text-align:right">
-        <div class="stok-badge ${(mu.bakiye||0)>0?'stok-low':''}">${(mu.bakiye||0)>0?'Borç: ':''}${para(mu.bakiye||0)}</div>
-      </div>
-      <button class="btn sm" onclick="musteriModal('${mu.id}')">Düzenle</button>
-      <button class="sil-x" onclick="musteriSil('${mu.id}')">×</button>
-    </div>`).join('');
+      ${acik?`<div class="must-detay">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          ${mu.telefon?`<a class="btn sm" style="width:auto;text-decoration:none;display:inline-block" href="tel:${esc(telTemiz(mu.telefon))}">📞 Ara</a>`:''}
+          <button class="btn sm success" style="width:auto" onclick="gorusmeEkleModal('${mu.id}')">💬 Görüşme Ekle</button>
+          <button class="btn sm" style="width:auto" onclick="hatirlatmaModal('${mu.id}')">🔔 Hatırlatma</button>
+          <button class="btn sm" style="width:auto" onclick="musteriModal('${mu.id}')">✏️ Bilgiler</button>
+          <button class="btn sm danger" style="width:auto" onclick="musteriSil('${mu.id}')">Sil</button>
+        </div>
+        ${(mu.yetkili||mu.email||mu.adres||mu.vergiNo)?`<div style="font-size:12.5px;color:var(--mut);line-height:1.7;margin-bottom:12px" class="secilebilir">
+          ${mu.yetkili?`<div>👤 Yetkili: <span style="color:var(--ink)">${esc(mu.yetkili)}</span></div>`:''}
+          ${mu.email?`<div>✉️ ${esc(mu.email)}</div>`:''}
+          ${mu.adres?`<div>📍 ${esc(mu.adres)}</div>`:''}
+          ${mu.vergiNo?`<div>🧾 ${esc(mu.vergiDairesi||'')} ${esc(mu.vergiNo)}</div>`:''}
+        </div>`:''}
+        ${hatirlat?`<div style="background:${hatirlatGecti?'var(--amber-bg)':'#1B1D28'};border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13px">
+          <b style="color:${hatirlatGecti?'var(--amber)':'var(--mut)'}">🔔 ${tarihStr(hatirlat)}${hatirlatGecti?' — zamanı geldi':''}</b>
+          ${mu.hatirlatmaNot?`<div style="margin-top:4px;color:var(--mut)">${esc(mu.hatirlatmaNot)}</div>`:''}
+          <button class="btn sm" style="width:auto;margin-top:8px" onclick="hatirlatmaTemizle('${mu.id}')">Hatırlatmayı Kaldır</button>
+        </div>`:''}
+        <div class="lbl" style="margin-bottom:8px">Görüşme Geçmişi</div>
+        ${gorusmeler.length?gorusmeler.map(g=>`
+          <div class="gorusme-satir">
+            <div class="gorusme-tarih">${tarihStr(g.tarih)} <button class="sil-x" style="font-size:14px;padding:0 6px" onclick="gorusmeSil('${mu.id}','${g.id}')">×</button></div>
+            <div class="gorusme-not">${esc(g.not)}</div>
+          </div>`).join(''):'<div class="empty" style="padding:12px">Henüz görüşme kaydı yok</div>'}
+        ${satislari.length?`<div class="lbl" style="margin:14px 0 6px">Satışları (${satislari.length})</div>
+          <div style="font-size:12.5px;color:var(--mut)">
+          ${satislari.slice(-5).reverse().map(s=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #262837">
+            <span>${tarihStr(s.tarih)}</span><span class="yesil">${para(s.toplam)}</span></div>`).join('')}
+          </div>`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
 }
 
 function musteriModal(mid){
   const mu=mid?D.musteriler.find(x=>x.id===mid):null;
-  modalAc(`<div class="modal-title">${mu?'Müşteri Düzenle':'Yeni Müşteri'}</div>
+  modalAc(`<div class="modal-title">${mu?'Müşteri Bilgileri':'Yeni Müşteri'}</div>
   <div class="formgrid">
-    <div><div class="lbl">Ad / Firma</div><input type="text" id="mu-ad" value="${esc(mu?.ad||'')}"></div>
+    <div><div class="lbl">Ad / Firma *</div><input type="text" id="mu-ad" value="${esc(mu?.ad||'')}" placeholder="Ahmet Yapı Ltd."></div>
+    <div><div class="lbl">Yetkili Kişi</div><input type="text" id="mu-yetkili" value="${esc(mu?.yetkili||'')}" placeholder="Ahmet Bey"></div>
     <div class="row2">
-      <div><div class="lbl">Telefon</div><input type="tel" id="mu-tel" value="${esc(mu?.telefon||'')}"></div>
+      <div><div class="lbl">Telefon</div><input type="tel" id="mu-tel" value="${esc(mu?.telefon||'')}" placeholder="0532 000 0000"></div>
       <div><div class="lbl">Şehir</div><input type="text" id="mu-sehir" value="${esc(mu?.sehir||'')}"></div>
     </div>
-    <div><div class="lbl">Adres</div><textarea id="mu-adres" rows="2">${mu?.adres||''}</textarea></div>
+    <div><div class="lbl">E-posta</div><input type="email" id="mu-email" value="${esc(mu?.email||'')}"></div>
+    <div><div class="lbl">Adres</div><textarea id="mu-adres" rows="2">${esc(mu?.adres||'')}</textarea></div>
+    <div class="row2">
+      <div><div class="lbl">Vergi Dairesi</div><input type="text" id="mu-vd" value="${esc(mu?.vergiDairesi||'')}"></div>
+      <div><div class="lbl">Vergi No</div><input type="text" id="mu-vno" value="${esc(mu?.vergiNo||'')}"></div>
+    </div>
     <button class="btn success" onclick="musteriKaydet('${mid||''}')">Kaydet</button>
-    <button class="btn danger" onclick="modalKapatDirekt()">İptal</button>
+    <button class="btn" onclick="modalKapatDirekt()">İptal</button>
   </div>`);
 }
 
 function musteriKaydet(mid){
   const ad=document.getElementById('mu-ad').value.trim();
   if(!ad){ toast('İsim gerekli!','var(--red)'); return; }
-  const obj={ad,telefon:document.getElementById('mu-tel').value,sehir:document.getElementById('mu-sehir').value,adres:document.getElementById('mu-adres').value};
+  const obj={
+    ad,
+    yetkili:document.getElementById('mu-yetkili').value.trim(),
+    telefon:document.getElementById('mu-tel').value.trim(),
+    sehir:document.getElementById('mu-sehir').value.trim(),
+    email:document.getElementById('mu-email').value.trim(),
+    adres:document.getElementById('mu-adres').value.trim(),
+    vergiDairesi:document.getElementById('mu-vd').value.trim(),
+    vergiNo:document.getElementById('mu-vno').value.trim()
+  };
   if(mid){ const mu=D.musteriler.find(x=>x.id===mid); if(mu) Object.assign(mu,obj); }
-  else D.musteriler.push({id:uid(),...obj,bakiye:0});
-  kaydet(); modalKapatDirekt(); musteriListeRender(); toast('Müşteri kaydedildi ✓');
+  else {
+    const yeniId=uid();
+    D.musteriler.push({id:yeniId,...obj,bakiye:0,gorusmeler:[],hatirlatmaTarih:'',hatirlatmaNot:''});
+    acikMusteri=yeniId;
+  }
+  kaydet(); modalKapatDirekt(); renderTab('musteriler'); toast('Müşteri kaydedildi ✓');
 }
 
 function musteriSil(id){
-  if(!confirm('Müşteriyi silmek istiyor musunuz?')) return;
+  const mu=D.musteriler.find(x=>x.id===id);
+  const satisSayi=D.satislar.filter(s=>s.musteriId===id).length;
+  if(!confirm(`"${mu?.ad||''}" silinsin mi?${satisSayi?`\n\nBu müşterinin ${satisSayi} satış kaydı var — satışlar silinmez, müşteri adı kayıtlarda kalır.`:''}`)) return;
   D.musteriler=D.musteriler.filter(x=>x.id!==id);
-  kaydet(); musteriListeRender(); toast('Müşteri silindi','var(--amber)');
+  if(acikMusteri===id) acikMusteri='';
+  kaydet(); renderTab('musteriler'); toast('Müşteri silindi','var(--amber)');
+}
+
+// ── GÖRÜŞME KAYDI ────────────────────────────────────
+function gorusmeEkleModal(mid){
+  const mu=D.musteriler.find(x=>x.id===mid); if(!mu) return;
+  modalAc(`<div class="modal-title">Görüşme — ${esc(mu.ad)}</div>
+  <div class="formgrid">
+    <div><div class="lbl">Tarih</div><input type="date" id="g-tarih" value="${bugun()}"></div>
+    <div><div class="lbl">Ne konuşuldu?</div><textarea id="g-not" rows="4" placeholder="Örn: 250 levha fiyat sordu, 122x244 5mm. Yeşil makineden istiyor. Hafta içi tekrar arayacak."></textarea></div>
+    <div style="background:#1B1D28;border-radius:10px;padding:12px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer">
+        <input type="checkbox" id="g-hatirlat" style="width:18px;height:18px;flex:none" onchange="document.getElementById('g-hat-alan').style.display=this.checked?'block':'none'">
+        <span>Bu görüşme için hatırlatma kur</span>
+      </label>
+      <div id="g-hat-alan" style="display:none;margin-top:10px">
+        <div class="lbl">Ne zaman hatırlatılsın?</div>
+        <input type="date" id="g-hattarih" value="${gunEkle(7)}">
+      </div>
+    </div>
+    <button class="btn success" onclick="gorusmeKaydet('${mid}')">Görüşmeyi Kaydet</button>
+    <button class="btn" onclick="modalKapatDirekt()">İptal</button>
+  </div>`);
+}
+
+function gorusmeKaydet(mid){
+  const mu=D.musteriler.find(x=>x.id===mid); if(!mu) return;
+  const not=document.getElementById('g-not').value.trim();
+  if(!not){ toast('Görüşme notu boş olamaz!','var(--red)'); return; }
+  const tarih=document.getElementById('g-tarih').value||bugun();
+  if(!Array.isArray(mu.gorusmeler)) mu.gorusmeler=[];
+  mu.gorusmeler.push({id:uid(),tarih,not});
+  // Hatırlatma istendiyse kur
+  if(document.getElementById('g-hatirlat')?.checked){
+    const ht=document.getElementById('g-hattarih')?.value;
+    if(ht){ mu.hatirlatmaTarih=ht; mu.hatirlatmaNot=not.slice(0,120); }
+  }
+  acikMusteri=mid;
+  kaydet(); modalKapatDirekt(); renderTab('musteriler'); toast('Görüşme kaydedildi ✓');
+}
+
+function gorusmeSil(mid,gid){
+  const mu=D.musteriler.find(x=>x.id===mid); if(!mu) return;
+  if(!confirm('Bu görüşme kaydı silinsin mi?')) return;
+  mu.gorusmeler=(mu.gorusmeler||[]).filter(g=>g.id!==gid);
+  kaydet(); musteriListeRender(); toast('Görüşme silindi','var(--amber)');
+}
+
+// ── HATIRLATMA ───────────────────────────────────────
+function hatirlatmaModal(mid){
+  const mu=D.musteriler.find(x=>x.id===mid); if(!mu) return;
+  modalAc(`<div class="modal-title">Hatırlatma — ${esc(mu.ad)}</div>
+  <div class="formgrid">
+    <div><div class="lbl">Hatırlatma Tarihi</div><input type="date" id="h-tarih" value="${mu.hatirlatmaTarih||gunEkle(7)}"></div>
+    <div><div class="lbl">Not</div><textarea id="h-not" rows="3" placeholder="Örn: Fiyat teklifini tekrar sor">${esc(mu.hatirlatmaNot||'')}</textarea></div>
+    <div class="vardiya-grup">
+      <button type="button" class="chip" onclick="hatirlatKisayol(1)">Yarın</button>
+      <button type="button" class="chip" onclick="hatirlatKisayol(7)">1 hafta</button>
+      <button type="button" class="chip" onclick="hatirlatKisayol(15)">15 gün</button>
+      <button type="button" class="chip" onclick="hatirlatKisayol(30)">1 ay</button>
+    </div>
+    <button class="btn success" onclick="hatirlatmaKaydet('${mid}')">Kaydet</button>
+    ${mu.hatirlatmaTarih?`<button class="btn danger" onclick="hatirlatmaTemizle('${mid}')">Hatırlatmayı Kaldır</button>`:''}
+    <button class="btn" onclick="modalKapatDirekt()">İptal</button>
+  </div>`);
+}
+
+function hatirlatKisayol(gun){
+  const el=document.getElementById('h-tarih');
+  if(el) el.value=gunEkle(gun);
+}
+
+function hatirlatmaKaydet(mid){
+  const mu=D.musteriler.find(x=>x.id===mid); if(!mu) return;
+  const t=document.getElementById('h-tarih').value;
+  if(!t){ toast('Tarih seçin!','var(--red)'); return; }
+  mu.hatirlatmaTarih=t;
+  mu.hatirlatmaNot=document.getElementById('h-not').value.trim();
+  acikMusteri=mid;
+  kaydet(); modalKapatDirekt(); renderTab('musteriler'); toast('Hatırlatma kuruldu ✓');
+}
+
+function hatirlatmaTemizle(mid){
+  const mu=D.musteriler.find(x=>x.id===mid); if(!mu) return;
+  mu.hatirlatmaTarih=''; mu.hatirlatmaNot='';
+  kaydet(); modalKapatDirekt(); renderTab('musteriler'); toast('Hatırlatma kaldırıldı','var(--amber)');
 }
 
 // ══════════════════════════════════════════════════════
@@ -1466,8 +1829,8 @@ function renderAyarlar(m){
   <div class="card">
     <div class="section-hdr"><div class="mtitle" style="margin:0">📦 Ürünler</div><button class="btn sm success" onclick="urunEkleModal()">+ Ekle</button></div>
     <div id="ay-urunler">${D.urunler.map(u=>`
-      <div class="item-row"><div class="name" style="flex:1">${u.ad} <span class="meta">${u.renk||''}</span></div>
-      <button class="btn sm" style="font-size:11px;padding:3px 8px" onclick="urunDuzenleModal('${u.id}')">✏️</button>
+      <div class="item-row"><div class="name" style="flex:1">${esc(u.ad)} <span class="meta">${esc(u.renk||'')}</span></div>
+      <button class="btn sm" style="font-size:11px;padding:3px 8px;width:auto" onclick="urunDuzenleModal('${u.id}')">✏️</button>
       <button class="sil-x" onclick="urunSil('${u.id}')">×</button></div>`).join('') || '<div class="empty">Ürün yok</div>'}</div>
   </div>
 
@@ -1497,7 +1860,8 @@ function renderAyarlar(m){
   <div class="card">
     <div class="section-hdr"><div class="mtitle" style="margin:0">🏭 Makineler</div><button class="btn sm success" onclick="makineEkleModal()">+ Ekle</button></div>
     <div id="ay-makineler">${D.makineler.map(mk=>`
-      <div class="item-row"><div class="name" style="flex:1">${mk.ad} <span class="meta">${mk.model||''}</span></div>
+      <div class="item-row"><div class="name" style="flex:1">${esc(mk.ad)} <span class="meta">${esc(mk.model||'')}</span></div>
+      <button class="btn sm" style="font-size:11px;padding:3px 8px;width:auto" onclick="makineDuzenleModal('${mk.id}')">✏️</button>
       <button class="sil-x" onclick="makineSil('${mk.id}')">×</button></div>`).join('') || '<div class="empty">Makine yok</div>'}</div>
   </div>
 
@@ -1656,10 +2020,10 @@ function hammaddeSil(id){ if(!confirm('Hammaddeyi sil?')) return; D.hammaddeler=
 function makineEkleModal(){
   modalAc(`<div class="modal-title">Yeni Makine</div>
   <div class="formgrid">
-    <div><div class="lbl">Makine Adı</div><input type="text" id="mk-ad" placeholder="Ekstruder #3"></div>
+    <div><div class="lbl">Makine Adı</div><input type="text" id="mk-ad" placeholder="Yeşil Makine"></div>
     <div><div class="lbl">Model / Marka</div><input type="text" id="mk-model" placeholder=""></div>
     <button class="btn success" onclick="makineKaydetAy()">Kaydet</button>
-    <button class="btn danger" onclick="modalKapatDirekt()">İptal</button>
+    <button class="btn" onclick="modalKapatDirekt()">İptal</button>
   </div>`);
 }
 function makineKaydetAy(){
@@ -1667,6 +2031,24 @@ function makineKaydetAy(){
   if(!ad){ toast('Ad gerekli!','var(--red)'); return; }
   D.makineler.push({id:uid(),ad,model:document.getElementById('mk-model').value.trim()});
   kaydet(); modalKapatDirekt(); renderTab('ayarlar'); toast('Makine eklendi ✓');
+}
+function makineDuzenleModal(id){
+  const mk=D.makineler.find(x=>x.id===id); if(!mk) return;
+  modalAc(`<div class="modal-title">Makine Düzenle</div>
+  <div class="formgrid">
+    <div><div class="lbl">Makine Adı</div><input type="text" id="mk-ad" value="${esc(mk.ad)}"></div>
+    <div><div class="lbl">Model / Marka</div><input type="text" id="mk-model" value="${esc(mk.model||'')}"></div>
+    <button class="btn success" onclick="makineGuncelleAy('${id}')">Güncelle</button>
+    <button class="btn" onclick="modalKapatDirekt()">İptal</button>
+  </div>`);
+}
+function makineGuncelleAy(id){
+  const mk=D.makineler.find(x=>x.id===id); if(!mk) return;
+  const ad=document.getElementById('mk-ad').value.trim();
+  if(!ad){ toast('Ad gerekli!','var(--red)'); return; }
+  mk.ad=ad;
+  mk.model=document.getElementById('mk-model').value.trim();
+  kaydet(); modalKapatDirekt(); renderTab('ayarlar'); toast('Makine güncellendi ✓');
 }
 function makineSil(id){ if(!confirm('Makineyi sil?')) return; D.makineler=D.makineler.filter(x=>x.id!==id); kaydet(); renderTab('ayarlar'); }
 
@@ -1693,18 +2075,27 @@ function sifirla(){
 
 // ── INIT ─────────────────────────────────────────────
 (async function init(){
-  // Yükleniyor göster
-  const kilit = document.getElementById('kilit-ekrani');
   const mesaj = document.getElementById('kilit-mesaj');
+  const tuslar = document.querySelectorAll('.pin-tus');
   mesaj.textContent = '☁️ Veriler yükleniyor...';
+  // Yükleme bitene kadar tuş takımını kilitle (eski PIN ile açılmasın)
+  tuslar.forEach(t=>{ t.disabled=true; t.style.opacity='.45'; });
 
-  await fbYukle(); // Firebase'den çek (varsa localStorage'ı günceller)
+  // Firebase yanıt vermezse en fazla 8 sn bekle, sonra yerel veriyle devam et
+  try{
+    await Promise.race([
+      fbYukle(),
+      new Promise(r=>setTimeout(r,8000))
+    ]);
+  }catch(e){ console.warn('Başlangıç yükleme hatası:', e); }
 
+  D = veriNormalize(D); // sadece bellekte onar — diske yazma (başka sekmeyi ezmesin)
+
+  tuslar.forEach(t=>{ t.disabled=false; t.style.opacity=''; });
+  pinGirisi=''; guncellePinNoktalar();
   mesaj.textContent = 'PIN kodunuzu girin';
   document.getElementById('son-guncelleme').textContent = simdi();
 
-  // Uygulama açıkken gerçek zamanlı dinlemeyi başlat
-  // (kilit arkasında da dinliyoruz, açıldığında anında güncel veri gelir)
   fbDinle();
 })();
 </script>
